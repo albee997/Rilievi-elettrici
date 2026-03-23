@@ -139,6 +139,7 @@ input[type=month]{color-scheme:dark}
   <div style="padding:16px;border-top:1px solid var(--border);background:var(--surface);display:flex;flex-direction:column;gap:10px">
     <button class="btn btn-s" onclick="openSheet(null)">+ Aggiungi problema</button>
     <button class="btn btn-green" onclick="goPreview()">📄 Genera PDF</button>
+    <button class="btn" onclick="esportaPerAI()" style="background:var(--accent-dim);color:var(--accent);border:1px solid rgba(240,165,0,0.3);width:100%;font-size:15px;font-weight:500;padding:14px">📋 Esporta per AI</button>
   </div>
 </div>
 
@@ -184,8 +185,8 @@ input[type=month]{color-scheme:dark}
     <!-- GENERIC -->
     <div class="dyn hide" id="f-gen">
       <div class="fg">
-        <div style="display:flex;align-items:center;justify-content:space-between"><label>Descrizione breve</label><span class="ai-badge">✦ AI espande</span></div>
-        <textarea id="g-desc" placeholder="Es: presa corridoio bagni senza terra" rows="2"></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between"><label>Descrizione breve</label></div>
+        <textarea id="g-desc" placeholder="Es: presa corridoio bagni, scatola retro bancone..." rows="2"></textarea>
       </div>
       <div class="fg"><label>Luogo / dettaglio</label><input type="text" id="g-luogo" placeholder="Es. Bar piscina, vicino QE"></div>
     </div>
@@ -365,7 +366,7 @@ function removePhoto(){
   document.getElementById('photo-in').value='';
 }
 
-async function commitProblem(){
+function commitProblem(){
   if(!curTag){toast('⚠️ Scegli il tipo di problema');return;}
   let raw='',luogo='',diffNome='',diffQdr='';
 
@@ -382,13 +383,7 @@ async function commitProblem(){
   document.getElementById('ok-spin').style.display='block';
   document.getElementById('btn-ok').disabled=true;
 
-  let finalText=raw;
-  try{finalText=await aiExpand(raw,curTag.cat,luogo,diffNome,diffQdr);}
-  catch(e){
-    const em=e&&e.message?e.message:String(e);
-    showDbg(em);
-    finalText=fbText(raw,curTag.cat,luogo,diffNome,diffQdr);
-  }
+  let finalText=fbText(raw,curTag.cat,luogo,diffNome,diffQdr);
 
   const prob={
     text:finalText,rawDesc:raw,luogo,photo:photoData,
@@ -408,56 +403,19 @@ async function commitProblem(){
 }
 
 // ══ AI ══
-async function aiExpand(raw,cat,luogo,diffNome,diffQdr){
-  const hints={
-    terra:   `Forma esatta: "Verificare il collegamento all'impianto di messa a terra della/delle/del [elemento specifico] [luogo specifico]." — includi l'elemento e il luogo dalla nota.`,
-    diff:    `Forma esatta: "Verificare il funzionamento dell'interruttore differenziale "${diffNome}" presente nel quadro "${diffQdr}"${luogo?' sito '+luogo:''}.". Usa esattamente questi nomi.`,
-    scatola: `Forma esatta: "Chiudere con apposito coperchio la scatola di derivazione presente [luogo]."`,
-    interruttore:`Forma esatta: "Ripristinare l'integrità (sostituire) dell'interruttore [dettaglio] presente in [luogo]."`,
-    cablaggio:`Forma esatta: "Verificare e sistemare i cablaggi [dettaglio] presenti in [luogo]."`,
-    quadro:  `Forma esatta: "Sistemare il quadro [nome/tipo] presente in [luogo]."`,
-    cavi:    `Forma esatta: "Verificare la colorazione corretta dei cavi di alimentazione [dettaglio]."`,
-    altro:   `Produci una frase tecnica formale in italiano adatta a un verbale di verifica impianti elettrici.`
-  };
-
-  const prompt=`Sei un tecnico elettricista che redige verbali di verifica impianti in italiano tecnico formale.
-Trasforma la nota seguente in una singola frase tecnica per un documento ufficiale.
-${hints[cat]||hints.altro}
-${luogo&&cat!=='diff'?`Luogo: "${luogo}".`:''}
-Nota: "${raw}"
-IMPORTANTE: Rispondi SOLO con la frase finale. Nessun testo aggiuntivo, nessuna spiegazione.`;
-
-  const resp=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json','anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-5',
-      max_tokens:200,
-      messages:[{role:'user',content:prompt}]
-    })
-  });
-  if(!resp.ok){const e=await resp.text();throw new Error(e);}
-  const d=await resp.json();
-  if(d.error)throw new Error(d.error.message);
-  const t=d.content?.find(b=>b.type==='text')?.text?.trim();
-  if(!t)throw new Error('empty');
-  return t;
-}
 
 function fbText(raw,cat,luogo,diffNome,diffQdr){
   if(cat==='diff'){
     return `Verificare il funzionamento dell'interruttore differenziale "${diffNome}" presente nel quadro "${diffQdr}"${luogo?' sito '+luogo:''}.`;
   }
-  const m={
-    terra:`Verificare il collegamento all'impianto di messa a terra: ${raw}${luogo?' ('+luogo+')':''}.`,
-    scatola:`Chiudere con apposito coperchio la scatola di derivazione presente ${luogo||'nel locale indicato'}.`,
-    interruttore:`Ripristinare l'integrità (sostituire) dell'interruttore: ${raw}${luogo?' in '+luogo:''}.`,
-    cablaggio:`Verificare e sistemare i cablaggi: ${raw}${luogo?' in '+luogo:''}.`,
-    quadro:`Sistemare il quadro elettrico: ${raw}${luogo?' in '+luogo:''}.`,
-    cavi:`Verificare la colorazione corretta dei cavi: ${raw}.`,
-    altro:raw
-  };
-  return m[cat]||raw;
+  if(cat==='terra'){
+    return `Verificare il collegamento all'impianto di messa a terra ${raw?'di '+raw:''}${luogo?' presente '+luogo:''}.`;
+  }
+  if(cat==='scatola'){
+    return `Chiudere con apposito coperchio la scatola di derivazione presente ${luogo||raw||'nel locale indicato'}.`;
+  }
+  // Per tutte le altre categorie: testo libero scritto dall'utente
+  return raw;
 }
 
 // ══ PREVIEW ══
@@ -567,14 +525,58 @@ async function generatePDF(){
   toast('✓ PDF scaricato');
 }
 
-function showDbg(msg){
-  let d=document.getElementById('dbg-box');
-  if(!d){d=document.createElement('div');d.id='dbg-box';
-    d.style.cssText='position:fixed;top:0;left:0;right:0;background:#c00;color:#fff;font-size:13px;padding:12px 16px;z-index:99999;word-break:break-all;white-space:pre-wrap;max-height:50vh;overflow-y:auto';
-    document.body.appendChild(d);}
-  d.textContent='DEBUG: '+msg;
-  setTimeout(()=>{if(d.parentNode)d.parentNode.removeChild(d);},15000);
+function esportaPerAI(){
+  if(!S.probs.length){toast('⚠️ Nessun problema da esportare');return;}
+  const mese=fmtD(S.data);
+  let txt='Ciao, ho effettuato una verifica elettrica e ho preso i seguenti appunti strutturati sul campo. Per favore:\n';
+  txt+='1. Riformula ogni voce in italiano tecnico formale (forma "Verificare...", "Ripristinare...", "Chiudere..." ecc.)\n';
+  txt+='2. Genera il testo completo del verbale nel formato esatto seguente:\n\n';
+  txt+='---FORMATO---\n';
+  txt+='Spett.\n[cliente]\n[indirizzo]\nData: [mese anno]\n\n';
+  txt+='Oggetto: Situazioni da sistemare rilevate presso [sito] sita in [sede operativa].\n\n';
+  txt+='Siamo a comunicare le situazioni da sistemare rilevate:\n';
+  txt+='- [voce 1]\n- [voce 2]\n...\n\n';
+  txt+="A disposizione per eventuali chiarimenti, cogliamo l'occasione per porgere\n\nDistinti Saluti\n";
+  txt+='---FINE FORMATO---\n\n';
+  txt+='DATI VERIFICA:\n';
+  txt+=`Cliente: ${S.cli}\n`;
+  txt+=`Indirizzo destinatario: ${S.idest}\n`;
+  txt+=`Sede operativa: ${S.iop}\n`;
+  if(S.sito)txt+=`Nome struttura: ${S.sito}\n`;
+  txt+=`Periodo: ${mese}\n\n`;
+  txt+='PROBLEMI RILEVATI:\n';
+  S.probs.forEach((p,i)=>{
+    txt+=`\n${i+1}. Tipo: ${p.lbl}\n`;
+    if(p.cat==='diff'){
+      txt+=`   Interruttore: ${p.diffNome}\n`;
+      txt+=`   Quadro: ${p.diffQdr}\n`;
+      if(p.luogo)txt+=`   Posizione: ${p.luogo}\n`;
+    } else {
+      txt+=`   Nota: ${p.rawDesc||p.text}\n`;
+      if(p.luogo)txt+=`   Luogo: ${p.luogo}\n`;
+    }
+    if(p.photo)txt+=`   [foto allegata #${i+1}]\n`;
+  });
+  txt+='\nNota: le foto le allego separatamente se necessario.';
+  document.getElementById('export-text').value=txt;
+  document.getElementById('export-ov').classList.add('open');
 }
+
+function copyExport(){
+  const ta=document.getElementById('export-text');
+  ta.select();
+  ta.setSelectionRange(0,99999);
+  navigator.clipboard.writeText(ta.value).then(()=>{
+    document.getElementById('copy-lbl').textContent='✓ Copiato!';
+    setTimeout(()=>document.getElementById('copy-lbl').textContent='📋 Copia tutto',2000);
+  }).catch(()=>{
+    // fallback for older browsers
+    document.execCommand('copy');
+    document.getElementById('copy-lbl').textContent='✓ Copiato!';
+    setTimeout(()=>document.getElementById('copy-lbl').textContent='📋 Copia tutto',2000);
+  });
+}
+
 // ══ UTILS ══
 function fmtD(v){
   if(!v)return'';
@@ -594,6 +596,23 @@ document.getElementById('h-data').value=new Date().toISOString().slice(0,7);
 document.getElementById('sheet-ov').addEventListener('click',e=>{
   if(e.target===document.getElementById('sheet-ov'))closeSheet();
 });
+document.getElementById('export-ov').addEventListener('click',e=>{
+  if(e.target===document.getElementById('export-ov'))document.getElementById('export-ov').classList.remove('open');
+});
 </script>
+
+<!-- EXPORT MODAL -->
+<div class="overlay" id="export-ov">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-t">Esporta per AI</div>
+    <p style="font-size:13px;color:var(--muted);text-align:center;line-height:1.5">Copia tutto il testo qui sotto e incollalo in chat con Claude</p>
+    <textarea id="export-text" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;padding:13px 14px;outline:none;resize:none;line-height:1.6;min-height:280px" readonly></textarea>
+    <button class="btn btn-p" onclick="copyExport()">
+      <span id="copy-lbl">📋 Copia tutto</span>
+    </button>
+    <button class="btn btn-g" onclick="document.getElementById('export-ov').classList.remove('open')">Chiudi</button>
+  </div>
+</div>
 </body>
 </html>
