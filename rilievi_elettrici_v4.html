@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="it" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Rilievi Elettrici</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 7px;
+}
+
+[data-theme="dark"] {
+  --bg:       #0e0f12;
+  --s1:       #16181d;
+  --s2:       #1e2028;
+  --s3:       #262830;
+  --border:   #2e3038;
+  --border2:  #383b46;
+  --accent:   #f5a623;
+  --accent-dim: rgba(245,166,35,0.12);
+  --accent-border: rgba(245,166,35,0.28);
+  --blue:     #4f8ef7;
+  --blue-dim: rgba(79,142,247,0.12);
+  --green:    #3ecf8e;
+  --danger:   #e05555;
+  --danger-dim: rgba(224,85,85,0.1);
+  --text:     #e6e8ef;
+  --text2:    #9095a8;
+  --text3:    #555968;
+  --shadow:   rgba(0,0,0,0.4);
+}
+
+[data-theme="light"] {
+  --bg:       #f2f3f7;
+  --s1:       #ffffff;
+  --s2:       #f7f8fc;
+  --s3:       #eef0f6;
+  --border:   #e0e3ee;
+  --border2:  #cdd1e0;
+  --accent:   #e09000;
+  --accent-dim: rgba(224,144,0,0.1);
+  --accent-border: rgba(224,144,0,0.3);
+  --blue:     #3b7de8;
+  --blue-dim: rgba(59,125,232,0.1);
+  --green:    #27a871;
+  --danger:   #d94040;
+  --danger-dim: rgba(217,64,64,0.08);
+  --text:     #1a1d28;
+  --text2:    #5a5f72;
+  --text3:    #9095a8;
+  --shadow:   rgba(0,0,0,0.08);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  transition: background .2s, color .2s;
+}
+
+/* ─── SCREENS ─── */
+.screen { display: none; min-height: 100dvh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* ─── HEADER ─── */
+.hdr {
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--s1);
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: 12px;
+}
+.hdr-back {
+  width: 34px; height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: none; color: var(--text2);
+  font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.hdr-back:active { background: var(--s2); }
+.hdr-body { flex: 1; min-width: 0; }
+.hdr-title { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hdr-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
+.hdr-right { display: flex; gap: 8px; align-items: center; }
+
+/* ─── THEME TOGGLE ─── */
+.theme-btn {
+  width: 34px; height: 34px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xs);
+  background: none; color: var(--text2);
+  font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.theme-btn:active { background: var(--s2); }
+
+/* ─── SCROLL BODY ─── */
+.scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ─── HOME ─── */
+.home-hero {
+  padding: 28px 18px 22px;
+  background: var(--s1);
+  border-bottom: 1px solid var(--border);
+}
+.home-label {
+  font-size: 11px; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+}
+.home-title { font-size: 26px; font-weight: 700; line-height: 1.15; }
+.home-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+.home-toolbar {
+  padding: 14px 16px 10px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.toolbar-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; }
+
+/* ─── SESSION CARDS ─── */
+.sess-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+  display: flex; align-items: center; gap: 14px;
+}
+.sess-card:active { border-color: var(--accent); }
+
+.sess-count {
+  width: 44px; height: 44px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 18px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sess-info { flex: 1; min-width: 0; }
+.sess-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sess-meta { font-size: 12px; color: var(--text2); margin-top: 3px; }
+.sess-del {
+  width: 30px; height: 30px;
+  border-radius: var(--radius-xs);
+  background: none; border: 1px solid var(--border);
+  color: var(--text3); font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.sess-del:active { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
+
+/* ─── EMPTY ─── */
+.empty {
+  text-align: center; padding: 52px 24px;
+  color: var(--text3); font-size: 14px; line-height: 1.7;
+}
+.empty-ico { font-size: 38px; margin-bottom: 14px; opacity: .5; display: block; }
+
+/* ─── BUTTONS ─── */
+.btn {
+  border: none; border-radius: var(--radius-sm);
+  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500;
+  cursor: pointer; padding: 13px 18px;
+  transition: opacity .15s, transform .1s;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%;
+}
+.btn:active { transform: scale(.97); opacity: .85; }
+.btn-accent { background: var(--accent); color: #fff; font-weight: 600; }
+.btn-ghost { background: var(--s2); color: var(--text2); border: 1px solid var(--border); }
+.btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(224,85,85,.2); }
+.btn-sm {
+  padding: 9px 14px; font-size: 13px; font-weight: 500; width: auto;
+  border-radius: var(--radius-xs);
+}
+.btn-new-sess { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-xs); padding: 9px 16px; font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+.btn-new-sess:active { opacity: .8; }
+
+/* ─── FAB ─── */
+.fab {
+  position: fixed; bottom: 100px; right: 18px;
+  width: 54px; height: 54px; border-radius: 50%;
+  background: var(--accent); color: #fff; border: none;
+  font-size: 24px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 18px rgba(245,166,35,.35);
+  z-index: 30; transition: transform .15s;
+}
+.fab:active { transform: scale(.92); }
+.fab.hidden { display: none; }
+
+/* ─── BOTTOM BAR ─── */
+.bottom-bar {
+  padding: 12px 16px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--s1);
+}
+
+/* ─── PROBLEM CARDS ─── */
+.prob-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.prob-main { padding: 13px 14px; display: flex; gap: 11px; align-items: flex-start; }
+.prob-num {
+  width: 26px; height: 26px; border-radius: 7px;
+  background: var(--accent-dim); border: 1px solid var(--accent-border);
+  color: var(--accent); font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.prob-body { flex: 1; min-width: 0; }
+.prob-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 2px 8px;
+  font-size: 11px; font-weight: 500; color: var(--text2);
+  margin-bottom: 5px;
+}
+.prob-text { font-size: 14px; line-height: 1.5; color: var(--text); }
+.prob-actions { padding: 8px 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: var(--s2); }
+.prob-photo { width: 100%; max-height: 180px; object-fit: cover; border-top: 1px solid var(--border); display: block; }
+
+/* ─── OVERLAY / SHEET ─── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.6);
+  z-index: 100; display: none; align-items: flex-end;
+  backdrop-filter: blur(4px);
+}
+.overlay.open { display: flex; }
+.sheet {
+  background: var(--s1);
+  border-radius: 20px 20px 0 0;
+  width: 100%; max-height: 92dvh;
+  overflow-y: auto;
+  padding: 20px 18px 32px;
+  display: flex; flex-direction: column; gap: 14px;
+  animation: su .22s ease;
+}
+@keyframes su { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.handle { width: 38px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto -2px; }
+.sheet-title { font-size: 17px; font-weight: 700; text-align: center; }
+.sheet-sub { font-size: 13px; color: var(--text2); text-align: center; margin-top: -6px; line-height: 1.4; }
+
+/* ─── FORM ─── */
+.fg { display: flex; flex-direction: column; gap: 6px; }
+.fg label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .07em; }
+.fg input, .fg textarea {
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-family: 'Inter', sans-serif; font-size: 15px;
+  padding: 12px 13px; outline: none; width: 100%;
+  transition: border-color .15s; appearance: none; -webkit-appearance: none;
+}
+.fg input:focus, .fg textarea:focus { border-color: var(--accent); }
+.fg input[type=month] { color-scheme: dark; }
+.fg textarea { resize: none; line-height: 1.5; }
+.row2 { display: flex; gap: 10px; }
+.row2 > * { flex: 1; }
+
+/* ─── TAGS ─── */
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  padding: 8px 13px; border-radius: 20px;
+  background: var(--s2); border: 1px solid var(--border);
+  font-size: 13px; font-weight: 500; color: var(--text2);
+  cursor: pointer; transition: all .15s; user-select: none;
+}
+.tag.on { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
+.tag:active { transform: scale(.95); }
+
+/* ─── DYNAMIC FORM ─── */
+.dyn { display: flex; flex-direction: column; gap: 12px; }
+.dyn.hide { display: none; }
+
+/* ─── PHOTO ─── */
+.photo-zone {
+  border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
+  padding: 18px; text-align: center; cursor: pointer;
+  color: var(--text2); font-size: 14px; transition: border-color .15s;
+}
+.photo-zone:active { border-color: var(--accent); }
+.photo-prev { width: 100%; max-height: 180px; object-fit: cover; border-radius: var(--radius-sm); display: none; }
+.photo-rm { margin-top: 7px; font-size: 12px; color: var(--danger); cursor: pointer; display: none; }
+
+/* ─── PDF POPUP ─── */
+.pdf-popup {
+  background: var(--s1); border-radius: var(--radius); padding: 6px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 32px var(--shadow);
+  display: flex; flex-direction: column; gap: 4px;
+  width: 100%;
+}
+.pdf-opt {
+  padding: 13px 15px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer; transition: background .12s;
+}
+.pdf-opt:active { background: var(--s2); }
+.pdf-opt-icon { font-size: 22px; flex-shrink: 0; }
+.pdf-opt-body { flex: 1; }
+.pdf-opt-title { font-size: 14px; font-weight: 600; }
+.pdf-opt-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.pdf-divider { height: 1px; background: var(--border); margin: 2px 0; }
+
+/* ─── SPINNER ─── */
+.spin {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--accent-dim); border-top-color: var(--accent);
+  animation: rot .6s linear infinite; display: none; flex-shrink: 0;
+}
+@keyframes rot { to { transform: rotate(360deg); } }
+
+/* ─── TOAST ─── */
+.toast {
+  position: fixed; bottom: 110px; left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: var(--s3); border: 1px solid var(--border);
+  color: var(--text); padding: 10px 18px; border-radius: 30px;
+  font-size: 13px; z-index: 9999;
+  transition: transform .25s, opacity .25s;
+  opacity: 0; pointer-events: none; white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+.divider { height: 1px; background: var(--border); }
+</style>
+</head>
+<body>
+
+<!-- ════════════ HOME ════════════ -->
+<div id="s-home" class="screen active">
+  <div class="home-hero">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div>
+        <div class="home-label">⚡ Rilievi Elettrici</div>
+        <div class="home-title">Verifiche<br>sul Campo</div>
+        <div class="home-sub">Registra i problemi, genera il verbale.</div>
+      </div>
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+    </div>
+  </div>
+  <div class="home-toolbar">
+    <span class="toolbar-label">Verifiche salvate</span>
+    <button class="btn-new-sess" onclick="openOv('ov-new')">+ Nuova</button>
+  </div>
+  <div class="scroll" id="sess-list" style="padding-top:4px"></div>
+</div>
+
+<!-- ════════════ VERIFICA ════════════ -->
+<div id="s-ver" class="screen">
+  <div class="hdr">
+    <button class="hdr-back" onclick="goHome()">←</button>
+    <div class="hdr-body">
+      <div class="hdr-title" id="v-title">—</div>
+      <div class="hdr-sub" id="v-sub">—</div>
+    </div>
+    <div class="hdr-right">
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn2">🌙</button>
+    </div>
+  </div>
+  <div class="scroll" id="prob-list"></div>
+  <div class="bottom-bar">
+    <button class="btn btn-accent" onclick="openPdfPopup()">📄 Genera verbale</button>
+  </div>
+  <button class="fab" id="fab" onclick="openAddProb()">+</button>
+</div>
+
+<!-- ════════════ SHEET: NUOVA VERIFICA ════════════ -->
+<div class="overlay" id="ov-new">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Nuova verifica</div>
+    <div class="fg"><label>Cliente (Spett.)</label><input type="text" id="n-cli" placeholder="Es. La Castellana S.p.A." autocomplete="off"></div>
+    <div class="fg"><label>Via / indirizzo</label><input type="text" id="n-via" placeholder="Via Coorti Romane, 47"></div>
+    <div class="fg"><label>CAP e Comune</label><input type="text" id="n-cap" placeholder="25019 Sirmione (BS)"></div>
+    <div class="fg"><label>Sede operativa — Via (se diversa)</label><input type="text" id="n-op-via" placeholder="Lascia vuoto se uguale"></div>
+    <div class="fg"><label>Sede operativa — CAP e Comune</label><input type="text" id="n-op-cap" placeholder=""></div>
+    <div class="fg"><label>Nome struttura (opzionale)</label><input type="text" id="n-sito" placeholder='Es. "The Garda Village"'></div>
+    <div class="fg"><label>Periodo</label><input type="month" id="n-data"></div>
+    <button class="btn btn-accent" onclick="createSession()">Inizia verifica →</button>
+    <button class="btn btn-ghost" onclick="closeOv('ov-new')">Annulla</button>
+  </div>
+</div>
+
+<!-- ════════════ SHEET: AGGIUNGI PROBLEMA ════════════ -->
+<div class="overlay" id="ov-add">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title" id="add-title">Nuovo problema</div>
+
+    <div class="fg">
+      <label>Tipo</label>
+      <div class="tags" id="add-tags">
+        <div class="tag" data-cat="terra"   data-icon="⚠️" data-lbl="Messa a terra"    onclick="selTag(this,'add')">⚠️ Messa a terra</div>
+        <div class="tag" data-cat="diff"    data-icon="🔁" data-lbl="Differenziale"    onclick="selTag(this,'add')">🔁 Differenziale</div>
+        <div class="tag" data-cat="scatola" data-icon="📦" data-lbl="Scatola aperta"   onclick="selTag(this,'add')">📦 Scatola aperta</div>
+        <div class="tag" data-cat="quadro"  data-icon="🗄️" data-lbl="Quadro"           onclick="selTag(this,'add')">🗄️ Quadro</div>
+        <div class="tag" data-cat="altro"   data-icon="✏️" data-lbl="Altro"            onclick="selTag(this,'add')">✏️ Altro</div>
+      </div>
+    </div>
+
+    <!-- generic -->
+    <div class="dyn hide" id="add-f-gen">
+      <div class="fg">
+        <label>Descrizione</label>
+        <textarea id="add-desc" placeholder="Es: presa corridoio bagni&#10;scatola retro bancone bar&#10;quadro vicino caravan 45" rows="3"></textarea>
+      </div>
+    </div>
+
+    <!-- diff -->
+    <div class="dyn hide" id="add-f-diff">
+      <div class="fg"><label>Nome interruttore</label><input type="text" id="add-d-nome" placeholder='Es. "Antincendio", "Zona Q"'></div>
+      <div class="fg"><label>Nome quadro</label><input type="text" id="add-d-qdr" placeholder='Es. "QE Generale zona piscine"'></div>
+      <div class="fg"><label>Posizione quadro</label><input type="text" id="add-d-pos" placeholder="Es. botola zona 11, fianco appart. zona 15"></div>
+    </div>
+
+    <div class="fg">
+      <label>Foto (opzionale)</label>
+      <div class="photo-zone" onclick="document.getElementById('add-photo-in').click()">
+        <img id="add-photo-prev" class="photo-prev" alt="">
+        <div id="add-photo-ph">📷 Scatta o scegli foto</div>
+        <input type="file" id="add-photo-in" accept="image/*" capture="environment" onchange="handlePhoto('add',event)" style="display:none">
+      </div>
+      <div id="add-photo-rm" class="photo-rm" onclick="removePhoto('add')">✕ Rimuovi foto</div>
+    </div>
+
+    <button class="btn btn-accent" onclick="saveProb()">Aggiungi problema</button>
+    <button class="btn btn-ghost" onclick="closeOv('ov-add')">Annulla</button>
+  </div>
+</div>
+
+<!-- ════════════ SHEET: MODIFICA PROBLEMA ════════════ -->
+<div class="overlay" id="ov-edit">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Modifica problema</div>
+
+    <div class="fg">
+      <label>Tipo</label>
+      <div class="tags" id="edit-tags">
+        <div class="tag" data-cat="terra"   data-icon="⚠️" data-lbl="Messa a terra"    onclick="selTag(this,'edit')">⚠️ Messa a terra</div>
+        <div class="tag" data-cat="diff"    data-icon="🔁" data-lbl="Differenziale"    onclick="selTag(this,'edit')">🔁 Differenziale</div>
+        <div class="tag" data-cat="scatola" data-icon="📦" data-lbl="Scatola aperta"   onclick="selTag(this,'edit')">📦 Scatola aperta</div>
+        <div class="tag" data-cat="quadro"  data-icon="🗄️" data-lbl="Quadro"           onclick="selTag(this,'edit')">🗄️ Quadro</div>
+        <div class="tag" data-cat="altro"   data-icon="✏️" data-lbl="Altro"            onclick="selTag(this,'edit')">✏️ Altro</div>
+      </div>
+    </div>
+
+    <div class="dyn hide" id="edit-f-gen">
+      <div class="fg"><label>Descrizione</label><textarea id="edit-desc" rows="3"></textarea></div>
+    </div>
+    <div class="dyn hide" id="edit-f-diff">
+      <div class="fg"><label>Nome interruttore</label><input type="text" id="edit-d-nome"></div>
+      <div class="fg"><label>Nome quadro</label><input type="text" id="edit-d-qdr"></div>
+      <div class="fg"><label>Posizione quadro</label><input type="text" id="edit-d-pos"></div>
+    </div>
+
+    <div class="fg">
+      <label>Foto</label>
+      <div class="photo-zone" onclick="document.getElementById('edit-photo-in').click()">
+        <img id="edit-photo-prev" class="photo-prev" alt="">
+        <div id="edit-photo-ph">📷 Scatta o scegli foto</div>
+        <input type="file" id="edit-photo-in" accept="image/*" capture="environment" onchange="handlePhoto('edit',event)" style="display:none">
+      </div>
+      <div id="edit-photo-rm" class="photo-rm" onclick="removePhoto('edit')">✕ Rimuovi foto</div>
+    </div>
+
+    <button class="btn btn-accent" onclick="saveEdit()">Salva modifiche</button>
+    <button class="btn btn-ghost" onclick="closeOv('ov-edit')">Annulla</button>
+  </div>
+</div>
+
+<!-- ════════════ SHEET: PDF POPUP ════════════ -->
+<div class="overlay" id="ov-pdf">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Genera verbale</div>
+    <div class="sheet-sub">Scegli come generare il documento</div>
+    <div class="pdf-popup">
+      <div class="pdf-opt" onclick="doGeneratePDF(false)">
+        <div class="pdf-opt-icon">📄</div>
+        <div class="pdf-opt-body">
+          <div class="pdf-opt-title">Genera PDF</div>
+          <div class="pdf-opt-sub">Frasi tecniche standard, immediato</div>
+        </div>
+      </div>
+      <div class="pdf-divider"></div>
+      <div class="pdf-opt" onclick="doGeneratePDF(true)" id="opt-ai">
+        <div class="pdf-opt-icon">✦</div>
+        <div class="pdf-opt-body">
+          <div class="pdf-opt-title">Genera con AI <span style="font-size:11px;color:var(--text2);font-weight:400">(richiede configurazione)</span></div>
+          <div class="pdf-opt-sub">Frasi riformulate e rifinite</div>
+        </div>
+        <div class="spin" id="ai-spin"></div>
+      </div>
+    </div>
+    <button class="btn btn-ghost" onclick="closeOv('ov-pdf')">Annulla</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ STORAGE ══
+const STORE_KEY = 'rilievi_v4';
+let DB = JSON.parse(localStorage.getItem(STORE_KEY) || '{"sessions":[]}');
+let curSessId = null;
+let addPhoto = null, editPhoto = null;
+let curAddTag = null, curEditTag = null;
+let editProbIdx = null;
+
+const save = () => localStorage.setItem(STORE_KEY, JSON.stringify(DB));
+const curSess = () => DB.sessions.find(s => s.id === curSessId);
+
+// ══ THEME ══
+const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+function toggleTheme() {
+  const next = isDark() ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('rilievi_theme', next);
+  const ico = next === 'dark' ? '🌙' : '☀️';
+  document.getElementById('theme-btn').textContent = ico;
+  document.getElementById('theme-btn2').textContent = ico;
+}
+// init theme
+const savedTheme = localStorage.getItem('rilievi_theme') || 'dark';
+document.documentElement.setAttribute('data-theme', savedTheme);
+document.addEventListener('DOMContentLoaded', () => {
+  const ico = savedTheme === 'dark' ? '🌙' : '☀️';
+  document.getElementById('theme-btn').textContent = ico;
+  document.getElementById('theme-btn2').textContent = ico;
+});
+
+// ══ NAV ══
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function goHome() { curSessId = null; renderHome(); show('s-home'); }
+
+// ══ HOME ══
+function renderHome() {
+  const el = document.getElementById('sess-list');
+  if (!DB.sessions.length) {
+    el.innerHTML = '<div class="empty"><span class="empty-ico">📋</span>Nessuna verifica salvata.<br>Premi <strong>+ Nuova</strong> per iniziare.</div>';
+    return;
+  }
+  el.innerHTML = DB.sessions.slice().reverse().map(s => `
+    <div class="sess-card" onclick="openSess('${s.id}')">
+      <div class="sess-count">${s.probs.length}</div>
+      <div class="sess-info">
+        <div class="sess-name">${esc(s.cli)}</div>
+        <div class="sess-meta">${fmtD(s.data)}${s.sito ? ' · ' + esc(s.sito) : ''} · ${s.probs.length} probl.</div>
+      </div>
+      <button class="sess-del" onclick="event.stopPropagation();delSess('${s.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function delSess(id) {
+  if (!confirm('Eliminare questa verifica?')) return;
+  DB.sessions = DB.sessions.filter(s => s.id !== id);
+  save(); renderHome(); toast('Verifica eliminata');
+}
+
+// ══ NEW SESSION ══
+function createSession() {
+  const cli = gv('n-cli'), via = gv('n-via'), cap = gv('n-cap'), data = gv('n-data');
+  if (!cli || !via || !cap || !data) { toast('⚠️ Compila cliente, indirizzo e data'); return; }
+  const opVia = gv('n-op-via'), opCap = gv('n-op-cap');
+  const sess = {
+    id: Date.now().toString(),
+    cli,
+    via, cap,
+    opVia: opVia || via,
+    opCap: opCap || cap,
+    sito: gv('n-sito'),
+    data,
+    probs: []
+  };
+  DB.sessions.push(sess);
+  save(); closeOv('ov-new');
+  openSess(sess.id);
+}
+
+// ══ SESSION ══
+function openSess(id) {
+  curSessId = id;
+  const s = curSess();
+  document.getElementById('v-title').textContent = s.cli;
+  document.getElementById('v-sub').textContent = fmtD(s.data) + (s.sito ? ' · ' + s.sito : '');
+  renderProbs();
+  show('s-ver');
+}
+
+function renderProbs() {
+  const s = curSess();
+  const el = document.getElementById('prob-list');
+  if (!s.probs.length) {
+    el.innerHTML = '<div class="empty"><span class="empty-ico">🔍</span>Nessun problema aggiunto.<br>Premi <strong>+</strong> per iniziare.</div>';
+    return;
+  }
+  el.innerHTML = s.probs.map((p, i) => `
+    <div class="prob-card">
+      <div class="prob-main">
+        <div class="prob-num">${i+1}</div>
+        <div class="prob-body">
+          <div class="prob-badge">${p.icon} ${esc(p.lbl)}</div>
+          <div class="prob-text">${esc(buildText(p))}</div>
+        </div>
+      </div>
+      ${p.photo ? `<img class="prob-photo" src="${p.photo}" alt="">` : ''}
+      <div class="prob-actions">
+        <button class="btn btn-ghost btn-sm" onclick="openEditProb(${i})">✏️ Modifica</button>
+        <button class="btn btn-danger btn-sm" onclick="delProb(${i})">✕ Elimina</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ══ BUILD TEXT ══
+function buildText(p) {
+  if (p.cat === 'diff') {
+    return `Verificare il funzionamento dell'interruttore differenziale "${p.dNome}" presente nel quadro "${p.dQdr}"${p.dPos ? ' sito ' + p.dPos : ''}.`;
+  }
+  if (p.cat === 'terra') {
+    return `Verificare il collegamento all'impianto di messa a terra ${p.desc ? 'di ' + p.desc : ''}.`.replace(/\s+\./,'.').trim();
+  }
+  if (p.cat === 'scatola') {
+    return `Chiudere con apposito coperchio la scatola di derivazione${p.desc ? ' presente ' + p.desc : ''}.`;
+  }
+  if (p.cat === 'quadro') {
+    return `Sistemare il quadro elettrico${p.desc ? ' ' + p.desc : ''}.`;
+  }
+  return p.desc || '';
+}
+
+// ══ ADD PROBLEM ══
+function openAddProb() {
+  curAddTag = null; addPhoto = null;
+  document.querySelectorAll('#add-tags .tag').forEach(t => t.classList.remove('on'));
+  document.querySelectorAll('#ov-add .dyn').forEach(f => f.classList.add('hide'));
+  ['add-desc','add-d-nome','add-d-qdr','add-d-pos'].forEach(id => document.getElementById(id).value = '');
+  resetPhoto('add');
+  openOv('ov-add');
+}
+
+function saveProb() {
+  if (!curAddTag) { toast('⚠️ Scegli il tipo di problema'); return; }
+  const p = buildProbFromForm('add');
+  if (!p) return;
+  curSess().probs.push(p);
+  save(); renderProbs(); closeOv('ov-add');
+  toast('✓ Problema aggiunto');
+}
+
+// ══ EDIT PROBLEM ══
+function openEditProb(i) {
+  editProbIdx = i;
+  const p = curSess().probs[i];
+  // set tag
+  document.querySelectorAll('#edit-tags .tag').forEach(t => {
+    t.classList.remove('on');
+    if (t.dataset.cat === p.cat) t.classList.add('on');
+  });
+  curEditTag = { cat: p.cat, icon: p.icon, lbl: p.lbl };
+  document.querySelectorAll('#ov-edit .dyn').forEach(f => f.classList.add('hide'));
+  if (p.cat === 'diff') {
+    document.getElementById('edit-f-diff').classList.remove('hide');
+    document.getElementById('edit-d-nome').value = p.dNome || '';
+    document.getElementById('edit-d-qdr').value  = p.dQdr  || '';
+    document.getElementById('edit-d-pos').value  = p.dPos  || '';
+  } else {
+    document.getElementById('edit-f-gen').classList.remove('hide');
+    document.getElementById('edit-desc').value = p.desc || '';
+  }
+  editPhoto = p.photo || null;
+  const prev = document.getElementById('edit-photo-prev');
+  if (p.photo) { prev.src = p.photo; prev.style.display = 'block'; document.getElementById('edit-photo-ph').style.display = 'none'; document.getElementById('edit-photo-rm').style.display = 'block'; }
+  else resetPhoto('edit');
+  document.getElementById('edit-photo-in').value = '';
+  openOv('ov-edit');
+}
+
+function saveEdit() {
+  if (!curEditTag) { toast('⚠️ Scegli il tipo'); return; }
+  const p = buildProbFromForm('edit');
+  if (!p) return;
+  curSess().probs[editProbIdx] = p;
+  save(); renderProbs(); closeOv('ov-edit');
+  toast('✓ Problema aggiornato');
+}
+
+function delProb(i) {
+  if (!confirm('Eliminare questo problema?')) return;
+  curSess().probs.splice(i, 1);
+  save(); renderProbs(); toast('Problema eliminato');
+}
+
+// ══ BUILD PROB FROM FORM ══
+function buildProbFromForm(mode) {
+  const tag = mode === 'add' ? curAddTag : curEditTag;
+  const photo = mode === 'add' ? addPhoto : editPhoto;
+  const p = { cat: tag.cat, icon: tag.icon, lbl: tag.lbl, photo };
+  if (tag.cat === 'diff') {
+    const nome = gv(mode+'-d-nome'), qdr = gv(mode+'-d-qdr'), pos = gv(mode+'-d-pos');
+    if (!nome || !qdr) { toast('⚠️ Inserisci nome interruttore e quadro'); return null; }
+    p.dNome = nome; p.dQdr = qdr; p.dPos = pos;
+  } else {
+    const desc = gv(mode+'-desc');
+    if (!desc && tag.cat !== 'scatola' && tag.cat !== 'quadro') { toast('⚠️ Inserisci una descrizione'); return null; }
+    p.desc = desc;
+  }
+  return p;
+}
+
+// ══ TAGS ══
+function selTag(el, mode) {
+  const prefix = '#' + (mode==='add'?'add':'edit') + '-tags .tag';
+  document.querySelectorAll(prefix).forEach(t => t.classList.remove('on'));
+  el.classList.add('on');
+  const tag = { cat: el.dataset.cat, icon: el.dataset.icon, lbl: el.dataset.lbl };
+  if (mode === 'add') curAddTag = tag;
+  else curEditTag = tag;
+  const isDiff = el.dataset.cat === 'diff';
+  document.querySelectorAll('#ov-' + mode + ' .dyn').forEach(f => f.classList.add('hide'));
+  if (!isDiff) document.getElementById(mode+'-f-gen').classList.remove('hide');
+  else document.getElementById(mode+'-f-diff').classList.remove('hide');
+}
+
+// ══ PHOTO ══
+function handlePhoto(mode, e) {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas');
+      const MAX = 1200; let w = img.width, h = img.height;
+      if (w > MAX) { h = h*MAX/w; w = MAX; }
+      if (h > MAX) { w = w*MAX/h; h = MAX; }
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      const data = c.toDataURL('image/jpeg', .75);
+      if (mode === 'add') addPhoto = data; else editPhoto = data;
+      const pv = document.getElementById(mode+'-photo-prev');
+      pv.src = data; pv.style.display = 'block';
+      document.getElementById(mode+'-photo-ph').style.display = 'none';
+      document.getElementById(mode+'-photo-rm').style.display = 'block';
+    };
+    img.src = ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+function removePhoto(mode) {
+  if (mode === 'add') addPhoto = null; else editPhoto = null;
+  resetPhoto(mode);
+  document.getElementById(mode+'-photo-in').value = '';
+}
+
+function resetPhoto(mode) {
+  document.getElementById(mode+'-photo-prev').style.display = 'none';
+  document.getElementById(mode+'-photo-ph').style.display = 'block';
+  document.getElementById(mode+'-photo-rm').style.display = 'none';
+}
+
+// ══ PDF POPUP ══
+function openPdfPopup() {
+  if (!curSess().probs.length) { toast('⚠️ Aggiungi almeno un problema'); return; }
+  openOv('ov-pdf');
+}
+
+// ══ PDF GENERATION ══
+async function doGeneratePDF(withAI) {
+  closeOv('ov-pdf');
+  const s = curSess();
+
+  // If AI requested, show spinner and try
+  let texts = s.probs.map(p => buildText(p));
+  if (withAI) {
+    document.getElementById('ai-spin').style.display = 'block';
+    openOv('ov-pdf');
+    try {
+      texts = await aiRefine(s, texts);
+    } catch(e) {
+      toast('⚠️ AI non disponibile, PDF generato senza');
+    }
+    document.getElementById('ai-spin').style.display = 'none';
+    closeOv('ov-pdf');
+  }
+
+  buildPDF(s, texts);
+}
+
+function buildPDF(s, texts) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
+  const ml = 25, mr = 185, W = mr - ml;
+  let y = 28;
+
+  const sf = (style, size) => { doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(0,0,0); };
+  const chk = (n=20) => { if (y + n > 275) { doc.addPage(); y = 25; } };
+
+  // Destinatario
+  sf('normal', 11);
+  doc.text('Spett.', ml, y); y += 6;
+  doc.text(s.cli, ml, y); y += 6;
+  doc.text(s.via, ml, y); y += 6;
+  doc.text(s.cap, ml, y); y += 2;
+
+  // Data destra
+  sf('normal', 11);
+  const ds = `Data: ${fmtD(s.data)}`;
+  doc.text(ds, mr - doc.getTextWidth(ds), y); y += 10;
+
+  // Oggetto
+  const sitoPart = s.sito ? `"${s.sito}" ` : '';
+  const sedeStr = s.opVia + ', ' + s.opCap;
+  const ogg = `Oggetto: Situazioni da sistemare rilevate presso ${sitoPart}sita in ${sedeStr}.`;
+  sf('bold', 11);
+  const ogL = doc.splitTextToSize(ogg, W);
+  doc.text(ogL, ml, y); y += ogL.length * 6 + 8;
+
+  // Intro
+  sf('normal', 11);
+  doc.text('Siamo a comunicare le situazioni da sistemare rilevate:', ml, y); y += 8;
+
+  // Problemi
+  for (let i = 0; i < s.probs.length; i++) {
+    const p = s.probs[i];
+    chk(30);
+    sf('normal', 11);
+    const bL = doc.splitTextToSize(`- ${texts[i]}`, W);
+    doc.text(bL, ml, y); y += bL.length * 6;
+    if (p.photo) {
+      chk(70); y += 2;
+      try {
+        const ip = doc.getImageProperties(p.photo);
+        const iw = Math.min(100, W * 0.6), ih = iw / (ip.width / ip.height);
+        doc.addImage(p.photo, 'JPEG', ml, y, iw, ih);
+        sf('normal', 9); doc.setTextColor(120,120,120);
+        doc.text(`(foto ${i+1})`, ml, y + ih + 4); doc.setTextColor(0,0,0);
+        y += ih + 8;
+      } catch(e) {}
+    }
+    y += 2;
+  }
+
+  // Chiusura
+  chk(25); y += 6;
+  sf('normal', 11);
+  doc.text("A disposizione per eventuali chiarimenti, cogliamo l'occasione per porgere", ml, y);
+  y += 14;
+  sf('bold', 11);
+  doc.text('Distinti Saluti', ml, y);
+
+  doc.save(`Rilievi_${s.cli.replace(/[^a-zA-Z0-9]/g,'_')}_${s.data}.pdf`);
+  toast('✓ PDF scaricato');
+}
+
+// ══ AI REFINE (Cloudflare proxy — configurare URL) ══
+const AI_PROXY_URL = ''; // inserire URL Cloudflare Worker dopo configurazione
+
+async function aiRefine(s, texts) {
+  if (!AI_PROXY_URL) throw new Error('no proxy');
+  const prompt = `Sei un tecnico elettricista. Riformula le seguenti voci in italiano tecnico formale per un verbale ufficiale. Rispondi SOLO con un array JSON di stringhe, stesso numero e ordine delle voci originali.
+Voci: ${JSON.stringify(texts)}`;
+  const resp = await fetch(AI_PROXY_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt })
+  });
+  if (!resp.ok) throw new Error('proxy error');
+  const d = await resp.json();
+  return JSON.parse(d.result);
+}
+
+// ══ OVERLAY ══
+function openOv(id) { document.getElementById(id).classList.add('open'); }
+function closeOv(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
+
+// ══ UTILS ══
+function fmtD(v) {
+  if (!v) return '';
+  const [yr, mo] = v.split('-');
+  return ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'][parseInt(mo)-1] + ' ' + yr;
+}
+function gv(id) { return (document.getElementById(id)?.value || '').trim(); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ══ INIT ══
+document.getElementById('n-data').value = new Date().toISOString().slice(0, 7);
+const ico = savedTheme === 'dark' ? '🌙' : '☀️';
+document.getElementById('theme-btn').textContent = ico;
+document.getElementById('theme-btn2').textContent = ico;
+renderHome();
+</script>
+</body>
+</html>
