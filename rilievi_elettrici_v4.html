@@ -5,361 +5,190 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Rilievi Elettrici</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-
-:root {
-  --radius: 14px;
-  --radius-sm: 10px;
-  --radius-xs: 7px;
-}
-
+:root { --r:14px; --rs:10px; --rx:7px; }
 [data-theme="dark"] {
-  --bg:       #0e0f12;
-  --s1:       #16181d;
-  --s2:       #1e2028;
-  --s3:       #262830;
-  --border:   #2e3038;
-  --border2:  #383b46;
-  --accent:   #f5a623;
-  --accent-dim: rgba(245,166,35,0.12);
-  --accent-border: rgba(245,166,35,0.28);
-  --blue:     #4f8ef7;
-  --blue-dim: rgba(79,142,247,0.12);
-  --green:    #3ecf8e;
-  --danger:   #e05555;
-  --danger-dim: rgba(224,85,85,0.1);
-  --text:     #e6e8ef;
-  --text2:    #9095a8;
-  --text3:    #555968;
-  --shadow:   rgba(0,0,0,0.4);
+  --bg:#0e0f12; --s1:#16181d; --s2:#1e2028; --s3:#262830; --border:#2e3038; --border2:#383b46;
+  --accent:#f5a623; --adim:rgba(245,166,35,0.12); --aborder:rgba(245,166,35,0.28);
+  --blue:#4f8ef7; --bdim:rgba(79,142,247,0.12);
+  --green:#3ecf8e; --danger:#e05555; --ddim:rgba(224,85,85,0.1);
+  --text:#e6e8ef; --t2:#9095a8; --t3:#555968; --shadow:rgba(0,0,0,0.4);
 }
-
 [data-theme="light"] {
-  --bg:       #f2f3f7;
-  --s1:       #ffffff;
-  --s2:       #f7f8fc;
-  --s3:       #eef0f6;
-  --border:   #e0e3ee;
-  --border2:  #cdd1e0;
-  --accent:   #e09000;
-  --accent-dim: rgba(224,144,0,0.1);
-  --accent-border: rgba(224,144,0,0.3);
-  --blue:     #3b7de8;
-  --blue-dim: rgba(59,125,232,0.1);
-  --green:    #27a871;
-  --danger:   #d94040;
-  --danger-dim: rgba(217,64,64,0.08);
-  --text:     #1a1d28;
-  --text2:    #5a5f72;
-  --text3:    #9095a8;
-  --shadow:   rgba(0,0,0,0.08);
+  --bg:#f2f3f7; --s1:#ffffff; --s2:#f7f8fc; --s3:#eef0f6; --border:#e0e3ee; --border2:#cdd1e0;
+  --accent:#e09000; --adim:rgba(224,144,0,0.1); --aborder:rgba(224,144,0,0.3);
+  --blue:#3b7de8; --bdim:rgba(59,125,232,0.1);
+  --green:#27a871; --danger:#d94040; --ddim:rgba(217,64,64,0.08);
+  --text:#1a1d28; --t2:#5a5f72; --t3:#9095a8; --shadow:rgba(0,0,0,0.08);
 }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden;transition:background .2s,color .2s}
+.screen{display:none;min-height:100dvh;flex-direction:column}
+.screen.active{display:flex}
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* HEADER */
+.hdr{padding:14px 16px 12px;border-bottom:1px solid var(--border);background:var(--s1);position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px}
+.hdr-back{width:34px;height:34px;border:1px solid var(--border);border-radius:var(--rx);background:none;color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hdr-back:active{background:var(--s2)}
+.hdr-body{flex:1;min-width:0}
+.hdr-title{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-sub{font-size:12px;color:var(--t2);margin-top:1px}
+.hdr-right{display:flex;gap:6px}
+.icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:var(--rx);background:none;color:var(--t2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.icon-btn:active{background:var(--s2)}
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100dvh;
-  overflow-x: hidden;
-  transition: background .2s, color .2s;
-}
+/* SCROLL */
+.scroll{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px}
 
-/* ─── SCREENS ─── */
-.screen { display: none; min-height: 100dvh; flex-direction: column; }
-.screen.active { display: flex; }
+/* HOME HERO */
+.hero{padding:28px 18px 20px;background:var(--s1);border-bottom:1px solid var(--border)}
+.hero-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:6px}
+.hero-title{font-size:26px;font-weight:700;line-height:1.15}
+.hero-sub{font-size:13px;color:var(--t2);margin-top:4px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start}
 
-/* ─── HEADER ─── */
-.hdr {
-  padding: 14px 18px 12px;
-  border-bottom: 1px solid var(--border);
-  background: var(--s1);
-  position: sticky; top: 0; z-index: 20;
-  display: flex; align-items: center; gap: 12px;
-}
-.hdr-back {
-  width: 34px; height: 34px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xs);
-  background: none; color: var(--text2);
-  font-size: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.hdr-back:active { background: var(--s2); }
-.hdr-body { flex: 1; min-width: 0; }
-.hdr-title { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.hdr-sub { font-size: 12px; color: var(--text2); margin-top: 1px; }
-.hdr-right { display: flex; gap: 8px; align-items: center; }
+/* TOOLBAR */
+.toolbar{padding:12px 16px 8px;display:flex;justify-content:space-between;align-items:center}
+.toolbar-lbl{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.07em}
+.btn-new{background:var(--accent);color:#fff;border:none;border-radius:var(--rx);padding:8px 15px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.btn-new:active{opacity:.8}
 
-/* ─── THEME TOGGLE ─── */
-.theme-btn {
-  width: 34px; height: 34px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xs);
-  background: none; color: var(--text2);
-  font-size: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-}
-.theme-btn:active { background: var(--s2); }
+/* SESSION CARDS */
+.sess-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color .15s}
+.sess-card:active{border-color:var(--accent)}
+.sess-cnt{width:44px;height:44px;border-radius:var(--rs);background:var(--adim);border:1px solid var(--aborder);color:var(--accent);font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sess-info{flex:1;min-width:0}
+.sess-name{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sess-meta{font-size:12px;color:var(--t2);margin-top:3px}
+.sess-del{width:30px;height:30px;border-radius:var(--rx);background:none;border:1px solid var(--border);color:var(--t3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sess-del:active{background:var(--ddim);border-color:var(--danger);color:var(--danger)}
+.sess-card[draggable]{cursor:grab}
+.sess-card[draggable]:active{cursor:grabbing}
+.sess-act{width:28px;height:28px;border-radius:var(--rx);background:none;border:1px solid var(--border);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.sess-act:active{background:var(--s3)}
+.sess-act-del:active{background:var(--ddim);border-color:var(--danger);color:var(--danger)}
+.sess-done{opacity:1}
+.sess-done .sess-cnt{background:rgba(139,92,246,0.15);border-color:rgba(139,92,246,0.35);color:#a78bfa}
+.sess-done .sess-name{color:#a78bfa}
+.sess-done .sess-meta{color:var(--t3)}
+.sess-done .sess-act:first-child{color:var(--green);border-color:rgba(62,207,142,.3);background:rgba(62,207,142,.08)}
+.sess-section-lbl{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.07em;padding:10px 4px 4px}
 
-/* ─── SCROLL BODY ─── */
-.scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+/* EMPTY */
+.empty{text-align:center;padding:48px 24px;color:var(--t3);font-size:14px;line-height:1.7}
+.empty-ico{font-size:36px;margin-bottom:12px;display:block;opacity:.5}
 
-/* ─── HOME ─── */
-.home-hero {
-  padding: 28px 18px 22px;
-  background: var(--s1);
-  border-bottom: 1px solid var(--border);
-}
-.home-label {
-  font-size: 11px; font-weight: 600; letter-spacing: .08em;
-  text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
-}
-.home-title { font-size: 26px; font-weight: 700; line-height: 1.15; }
-.home-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+/* BUTTONS */
+.btn{border:none;border-radius:var(--rs);font-family:'Inter',sans-serif;font-size:15px;font-weight:500;cursor:pointer;padding:13px 16px;transition:opacity .15s,transform .1s;display:flex;align-items:center;justify-content:center;gap:7px;width:100%}
+.btn:active{transform:scale(.97);opacity:.85}
+.btn-accent{background:var(--accent);color:#fff;font-weight:600}
+.btn-ghost{background:var(--s2);color:var(--t2);border:1px solid var(--border)}
+.btn-danger{background:var(--ddim);color:var(--danger);border:1px solid rgba(224,85,85,.2)}
+.btn-sm{padding:8px 12px;font-size:13px;width:auto;border-radius:var(--rx)}
 
-.home-toolbar {
-  padding: 14px 16px 10px;
-  display: flex; justify-content: space-between; align-items: center;
-}
-.toolbar-label { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; }
+/* FAB */
+.fab{position:fixed;bottom:96px;right:18px;width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;border:none;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(245,166,35,.35);z-index:30;transition:transform .15s}
+.fab:active{transform:scale(.92)}
 
-/* ─── SESSION CARDS ─── */
-.sess-card {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 15px;
-  cursor: pointer;
-  transition: border-color .15s, box-shadow .15s;
-  display: flex; align-items: center; gap: 14px;
-}
-.sess-card:active { border-color: var(--accent); }
+/* BOTTOM BAR */
+.btmbar{padding:12px 16px 24px;border-top:1px solid var(--border);background:var(--s1)}
 
-.sess-count {
-  width: 44px; height: 44px;
-  border-radius: var(--radius-sm);
-  background: var(--accent-dim);
-  border: 1px solid var(--accent-border);
-  color: var(--accent);
-  font-size: 18px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.sess-info { flex: 1; min-width: 0; }
-.sess-name { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sess-meta { font-size: 12px; color: var(--text2); margin-top: 3px; }
-.sess-del {
-  width: 30px; height: 30px;
-  border-radius: var(--radius-xs);
-  background: none; border: 1px solid var(--border);
-  color: var(--text3); font-size: 13px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.sess-del:active { background: var(--danger-dim); border-color: var(--danger); color: var(--danger); }
+/* PROB CARDS */
+.prob-card{background:var(--s1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+.prob-main{padding:12px 13px;display:flex;gap:10px;align-items:flex-start}
+.prob-num{width:26px;height:26px;border-radius:7px;background:var(--adim);border:1px solid var(--aborder);color:var(--accent);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.prob-body{flex:1;min-width:0}
+.prob-badge{display:inline-flex;align-items:center;gap:4px;background:var(--s2);border:1px solid var(--border);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:500;color:var(--t2);margin-bottom:5px}
+.prob-text{font-size:14px;line-height:1.5}
+.prob-actions{padding:8px 12px;border-top:1px solid var(--border);display:flex;gap:8px;background:var(--s2)}
+.prob-photo{width:100%;max-height:180px;object-fit:cover;border-top:1px solid var(--border);display:block}
 
-/* ─── EMPTY ─── */
-.empty {
-  text-align: center; padding: 52px 24px;
-  color: var(--text3); font-size: 14px; line-height: 1.7;
-}
-.empty-ico { font-size: 38px; margin-bottom: 14px; opacity: .5; display: block; }
+/* OVERLAY / SHEET */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:none;align-items:flex-end;backdrop-filter:blur(4px)}
+.overlay.open{display:flex}
+.sheet{background:var(--s1);border-radius:20px 20px 0 0;width:100%;max-height:92dvh;overflow-y:auto;padding:20px 18px 32px;display:flex;flex-direction:column;gap:14px;animation:su .22s ease}
+@keyframes su{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.handle{width:38px;height:4px;border-radius:2px;background:var(--border);margin:0 auto -2px}
+.sheet-title{font-size:17px;font-weight:700;text-align:center}
+.sheet-sub{font-size:13px;color:var(--t2);text-align:center;margin-top:-6px;line-height:1.4}
 
-/* ─── BUTTONS ─── */
-.btn {
-  border: none; border-radius: var(--radius-sm);
-  font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 500;
-  cursor: pointer; padding: 13px 18px;
-  transition: opacity .15s, transform .1s;
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-  width: 100%;
-}
-.btn:active { transform: scale(.97); opacity: .85; }
-.btn-accent { background: var(--accent); color: #fff; font-weight: 600; }
-.btn-ghost { background: var(--s2); color: var(--text2); border: 1px solid var(--border); }
-.btn-danger { background: var(--danger-dim); color: var(--danger); border: 1px solid rgba(224,85,85,.2); }
-.btn-sm {
-  padding: 9px 14px; font-size: 13px; font-weight: 500; width: auto;
-  border-radius: var(--radius-xs);
-}
-.btn-new-sess { background: var(--accent); color: #fff; border: none; border-radius: var(--radius-xs); padding: 9px 16px; font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
-.btn-new-sess:active { opacity: .8; }
+/* FORM */
+.fg{display:flex;flex-direction:column;gap:6px}
+.fg label{font-size:11px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.07em}
+.fg input,.fg textarea{background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;padding:12px 13px;outline:none;width:100%;transition:border-color .15s;appearance:none;-webkit-appearance:none}
+.fg input:focus,.fg textarea:focus{border-color:var(--accent)}
+.fg input[type=month]{color-scheme:dark}
+.fg input[type=password]{color-scheme:dark}
+.fg textarea{resize:none;line-height:1.5}
 
-/* ─── FAB ─── */
-.fab {
-  position: fixed; bottom: 100px; right: 18px;
-  width: 54px; height: 54px; border-radius: 50%;
-  background: var(--accent); color: #fff; border: none;
-  font-size: 24px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 18px rgba(245,166,35,.35);
-  z-index: 30; transition: transform .15s;
-}
-.fab:active { transform: scale(.92); }
-.fab.hidden { display: none; }
+/* TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:8px}
+.tag{padding:8px 13px;border-radius:20px;background:var(--s2);border:1px solid var(--border);font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .15s;user-select:none}
+.tag.on{background:var(--adim);border-color:var(--accent);color:var(--accent)}
+.tag:active{transform:scale(.95)}
 
-/* ─── BOTTOM BAR ─── */
-.bottom-bar {
-  padding: 12px 16px 24px;
-  border-top: 1px solid var(--border);
-  background: var(--s1);
-}
+/* DYN FORM */
+.dyn{display:flex;flex-direction:column;gap:12px}
+.dyn.hide{display:none}
 
-/* ─── PROBLEM CARDS ─── */
-.prob-card {
-  background: var(--s1);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-.prob-main { padding: 13px 14px; display: flex; gap: 11px; align-items: flex-start; }
-.prob-num {
-  width: 26px; height: 26px; border-radius: 7px;
-  background: var(--accent-dim); border: 1px solid var(--accent-border);
-  color: var(--accent); font-size: 12px; font-weight: 700;
-  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-}
-.prob-body { flex: 1; min-width: 0; }
-.prob-badge {
-  display: inline-flex; align-items: center; gap: 4px;
-  background: var(--s2); border: 1px solid var(--border);
-  border-radius: 20px; padding: 2px 8px;
-  font-size: 11px; font-weight: 500; color: var(--text2);
-  margin-bottom: 5px;
-}
-.prob-text { font-size: 14px; line-height: 1.5; color: var(--text); }
-.prob-actions { padding: 8px 12px; border-top: 1px solid var(--border); display: flex; gap: 8px; background: var(--s2); }
-.prob-photo { width: 100%; max-height: 180px; object-fit: cover; border-top: 1px solid var(--border); display: block; }
+/* PHOTO */
+.photo-zone{border:1.5px dashed var(--border);border-radius:var(--rs);padding:18px;text-align:center;cursor:pointer;color:var(--t2);font-size:14px;transition:border-color .15s}
+.photo-zone:active{border-color:var(--accent)}
+.photo-prev{width:100%;max-height:180px;object-fit:cover;border-radius:var(--rs);display:none}
+.photo-rm{margin-top:7px;font-size:12px;color:var(--danger);cursor:pointer;display:none}
 
-/* ─── OVERLAY / SHEET ─── */
-.overlay {
-  position: fixed; inset: 0;
-  background: rgba(0,0,0,.6);
-  z-index: 100; display: none; align-items: flex-end;
-  backdrop-filter: blur(4px);
-}
-.overlay.open { display: flex; }
-.sheet {
-  background: var(--s1);
-  border-radius: 20px 20px 0 0;
-  width: 100%; max-height: 92dvh;
-  overflow-y: auto;
-  padding: 20px 18px 32px;
-  display: flex; flex-direction: column; gap: 14px;
-  animation: su .22s ease;
-}
-@keyframes su { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.handle { width: 38px; height: 4px; border-radius: 2px; background: var(--border); margin: 0 auto -2px; }
-.sheet-title { font-size: 17px; font-weight: 700; text-align: center; }
-.sheet-sub { font-size: 13px; color: var(--text2); text-align: center; margin-top: -6px; line-height: 1.4; }
+/* PDF POPUP */
+.pdf-popup{background:var(--s1);border-radius:var(--r);padding:6px;border:1px solid var(--border);box-shadow:0 8px 32px var(--shadow);display:flex;flex-direction:column;gap:4px;width:100%}
+.pdf-opt{padding:13px 15px;border-radius:var(--rs);display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .12s}
+.pdf-opt:active{background:var(--s2)}
+.pdf-opt-icon{font-size:22px;flex-shrink:0}
+.pdf-opt-body{flex:1}
+.pdf-opt-title{font-size:14px;font-weight:600}
+.pdf-opt-sub{font-size:12px;color:var(--t2);margin-top:2px}
+.pdf-divider{height:1px;background:var(--border);margin:2px 0}
 
-/* ─── FORM ─── */
-.fg { display: flex; flex-direction: column; gap: 6px; }
-.fg label { font-size: 11px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .07em; }
-.fg input, .fg textarea {
-  background: var(--s2); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); color: var(--text);
-  font-family: 'Inter', sans-serif; font-size: 15px;
-  padding: 12px 13px; outline: none; width: 100%;
-  transition: border-color .15s; appearance: none; -webkit-appearance: none;
-}
-.fg input:focus, .fg textarea:focus { border-color: var(--accent); }
-.fg input[type=month] { color-scheme: dark; }
-.fg textarea { resize: none; line-height: 1.5; }
-.row2 { display: flex; gap: 10px; }
-.row2 > * { flex: 1; }
+/* SPINNER */
+.spin{width:18px;height:18px;border-radius:50%;border:2px solid var(--adim);border-top-color:var(--accent);animation:rot .6s linear infinite;display:none;flex-shrink:0}
+@keyframes rot{to{transform:rotate(360deg)}}
 
-/* ─── TAGS ─── */
-.tags { display: flex; flex-wrap: wrap; gap: 8px; }
-.tag {
-  padding: 8px 13px; border-radius: 20px;
-  background: var(--s2); border: 1px solid var(--border);
-  font-size: 13px; font-weight: 500; color: var(--text2);
-  cursor: pointer; transition: all .15s; user-select: none;
-}
-.tag.on { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
-.tag:active { transform: scale(.95); }
-
-/* ─── DYNAMIC FORM ─── */
-.dyn { display: flex; flex-direction: column; gap: 12px; }
-.dyn.hide { display: none; }
-
-/* ─── PHOTO ─── */
-.photo-zone {
-  border: 1.5px dashed var(--border); border-radius: var(--radius-sm);
-  padding: 18px; text-align: center; cursor: pointer;
-  color: var(--text2); font-size: 14px; transition: border-color .15s;
-}
-.photo-zone:active { border-color: var(--accent); }
-.photo-prev { width: 100%; max-height: 180px; object-fit: cover; border-radius: var(--radius-sm); display: none; }
-.photo-rm { margin-top: 7px; font-size: 12px; color: var(--danger); cursor: pointer; display: none; }
-
-/* ─── PDF POPUP ─── */
-.pdf-popup {
-  background: var(--s1); border-radius: var(--radius); padding: 6px;
-  border: 1px solid var(--border);
-  box-shadow: 0 8px 32px var(--shadow);
-  display: flex; flex-direction: column; gap: 4px;
-  width: 100%;
-}
-.pdf-opt {
-  padding: 13px 15px; border-radius: var(--radius-sm);
-  display: flex; align-items: center; gap: 12px;
-  cursor: pointer; transition: background .12s;
-}
-.pdf-opt:active { background: var(--s2); }
-.pdf-opt-icon { font-size: 22px; flex-shrink: 0; }
-.pdf-opt-body { flex: 1; }
-.pdf-opt-title { font-size: 14px; font-weight: 600; }
-.pdf-opt-sub { font-size: 12px; color: var(--text2); margin-top: 2px; }
-.pdf-divider { height: 1px; background: var(--border); margin: 2px 0; }
-
-/* ─── SPINNER ─── */
-.spin {
-  width: 18px; height: 18px; border-radius: 50%;
-  border: 2px solid var(--accent-dim); border-top-color: var(--accent);
-  animation: rot .6s linear infinite; display: none; flex-shrink: 0;
-}
-@keyframes rot { to { transform: rotate(360deg); } }
-
-/* ─── TOAST ─── */
-.toast {
-  position: fixed; bottom: 110px; left: 50%;
-  transform: translateX(-50%) translateY(30px);
-  background: var(--s3); border: 1px solid var(--border);
-  color: var(--text); padding: 10px 18px; border-radius: 30px;
-  font-size: 13px; z-index: 9999;
-  transition: transform .25s, opacity .25s;
-  opacity: 0; pointer-events: none; white-space: nowrap;
-}
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-.divider { height: 1px; background: var(--border); }
+/* TOAST */
+.toast{position:fixed;bottom:110px;left:50%;transform:translateX(-50%) translateY(30px);background:var(--s3);border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:30px;font-size:13px;z-index:9999;transition:transform .25s,opacity .25s;opacity:0;pointer-events:none;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.divider{height:1px;background:var(--border)}
+.key-status{font-size:13px;text-align:center;color:var(--green);display:none}
 </style>
 </head>
 <body>
 
-<!-- ════════════ HOME ════════════ -->
+<!-- HOME -->
 <div id="s-home" class="screen active">
-  <div class="home-hero">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+  <div class="hero">
+    <div class="hero-top">
       <div>
-        <div class="home-label">⚡ Rilievi Elettrici</div>
-        <div class="home-title">Verifiche<br>sul Campo</div>
-        <div class="home-sub">Registra i problemi, genera il verbale.</div>
+        <div class="hero-label">⚡ Rilievi Elettrici</div>
+        <div class="hero-title">Verifiche<br>sul Campo</div>
+        <div class="hero-sub">Registra i problemi, genera il verbale.</div>
+    <div id="sync-indicator" style="font-size:11px;color:var(--t3);margin-top:4px;display:none">⟳ Sincronizzazione...</div>
       </div>
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+      <button class="icon-btn" onclick="openOv('ov-settings')">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
     </div>
   </div>
-  <div class="home-toolbar">
-    <span class="toolbar-label">Verifiche salvate</span>
-    <button class="btn-new-sess" onclick="openOv('ov-new')">+ Nuova</button>
+  <div class="toolbar">
+    <span class="toolbar-lbl">Verifiche salvate</span>
+    <button class="btn-new" onclick="openNewSess()">+ Nuova</button>
+  </div>
+  <div style="padding:0 14px 8px">
+    <input type="text" id="search-input" placeholder="🔍 Cerca cliente o commessa..." oninput="renderHome()"
+      style="width:100%;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;padding:10px 13px;outline:none;appearance:none;-webkit-appearance:none">
   </div>
   <div class="scroll" id="sess-list" style="padding-top:4px"></div>
 </div>
 
-<!-- ════════════ VERIFICA ════════════ -->
+<!-- VERIFICA -->
 <div id="s-ver" class="screen">
   <div class="hdr">
     <button class="hdr-back" onclick="goHome()">←</button>
@@ -368,97 +197,150 @@ body {
       <div class="hdr-sub" id="v-sub">—</div>
     </div>
     <div class="hdr-right">
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-btn2">🌙</button>
+      <!-- Mode toggle button -->
+      <button id="hdr-mode-btn" onclick="toggleSessMode()" style="padding:5px 12px;border:none;border-radius:var(--rx);font-family:'Inter',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.04em">STD</button>
+      <button class="icon-btn" onclick="openEditSess()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      </button>
+      <button class="icon-btn" onclick="openOv('ov-settings')">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </button>
     </div>
   </div>
   <div class="scroll" id="prob-list"></div>
-  <div class="bottom-bar">
-    <button class="btn btn-accent" onclick="openPdfPopup()">📄 Genera verbale</button>
+  <div class="btmbar" style="display:flex;flex-direction:column;gap:8px">
+    <button class="btn btn-accent" id="btn-genera" onclick="generaVerbale()">📄 Genera PDF</button>
+    <button class="btn btn-ghost" id="btn-done-sess" onclick="toggleDoneFromSession()" style="font-size:13px;padding:10px">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>
+      <span id="btn-done-lbl">Segna come completata</span>
+    </button>
   </div>
-  <button class="fab" id="fab" onclick="openAddProb()">+</button>
+  <button class="fab" style="bottom:140px" onclick="openAddProb()">+</button>
 </div>
 
-<!-- ════════════ SHEET: NUOVA VERIFICA ════════════ -->
+<!-- SHEET: NUOVA VERIFICA -->
 <div class="overlay" id="ov-new">
   <div class="sheet">
     <div class="handle"></div>
     <div class="sheet-title">Nuova verifica</div>
-    <div class="fg"><label>Cliente (Spett.)</label><input type="text" id="n-cli" placeholder="Es. La Castellana S.p.A." autocomplete="off"></div>
-    <div class="fg"><label>Via / indirizzo</label><input type="text" id="n-via" placeholder="Via Coorti Romane, 47"></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="fg" style="flex:1"><label>Cliente (Spett.)</label><input type="text" id="n-cli" placeholder="Es. La Castellana S.p.A." autocomplete="off"></div>
+      <div style="padding-top:18px">
+        <button onclick="openOCR()" style="width:40px;height:42px;border:1px solid var(--border);border-radius:var(--rs);background:var(--s2);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px" title="Scansiona intestazione">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="fg"><label>Via / Indirizzo</label><input type="text" id="n-via" placeholder="Via Coorti Romane, 47"></div>
     <div class="fg"><label>CAP e Comune</label><input type="text" id="n-cap" placeholder="25019 Sirmione (BS)"></div>
     <div class="fg"><label>Sede operativa — Via (se diversa)</label><input type="text" id="n-op-via" placeholder="Lascia vuoto se uguale"></div>
-    <div class="fg"><label>Sede operativa — CAP e Comune</label><input type="text" id="n-op-cap" placeholder=""></div>
+    <div class="fg"><label>Sede operativa — CAP e Comune</label><input type="text" id="n-op-cap" placeholder="Lascia vuoto se uguale"></div>
     <div class="fg"><label>Nome struttura (opzionale)</label><input type="text" id="n-sito" placeholder='Es. "The Garda Village"'></div>
+    <div class="fg"><label>Commessa (numero pratica)</label><input type="text" id="n-commessa" placeholder="Es. 12345" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="numeric" pattern="[0-9]*" name="search" onfocus="this.removeAttribute('readonly')" readonly></div>
     <div class="fg"><label>Periodo</label><input type="month" id="n-data"></div>
-    <button class="btn btn-accent" onclick="createSession()">Inizia verifica →</button>
+    <button class="btn btn-accent" onclick="createSess()">Inizia verifica →</button>
     <button class="btn btn-ghost" onclick="closeOv('ov-new')">Annulla</button>
   </div>
 </div>
 
-<!-- ════════════ SHEET: AGGIUNGI PROBLEMA ════════════ -->
+<!-- SHEET: OCR INTESTAZIONE -->
+<div class="overlay" id="ov-ocr">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">📷 Scansiona intestazione</div>
+    <p class="sheet-sub">Scatta o scegli una foto dell'intestazione del documento — i dati verranno compilati automaticamente.</p>
+    <div class="photo-zone" onclick="document.getElementById('ocr-ph-in').click()">
+      <img id="ocr-ph-prev" class="photo-prev" alt="">
+      <div id="ocr-ph-txt">📷 Fotocamera / Galleria</div>
+      <input type="file" id="ocr-ph-in" accept="image/*" onchange="handleOCRPhoto(event)" style="display:none">
+    </div>
+    <button class="btn btn-accent" id="ocr-btn" onclick="runOCR()" style="display:none">
+      <span id="ocr-lbl">Estrai dati</span>
+      <div class="spin" id="ocr-spin"></div>
+    </button>
+    <button class="btn btn-ghost" onclick="closeOv('ov-ocr')">Annulla</button>
+  </div>
+</div>
+
+<!-- SHEET: MODIFICA VERIFICA -->
+<div class="overlay" id="ov-edit-sess">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title">Modifica verifica</div>
+    <div class="fg"><label>Cliente (Spett.)</label><input type="text" id="es-cli" autocomplete="off"></div>
+    <div class="fg"><label>Via / Indirizzo</label><input type="text" id="es-via"></div>
+    <div class="fg"><label>CAP e Comune</label><input type="text" id="es-cap"></div>
+    <div class="fg"><label>Sede op. Via (se diversa)</label><input type="text" id="es-op-via"></div>
+    <div class="fg"><label>Sede op. CAP e Comune</label><input type="text" id="es-op-cap"></div>
+    <div class="fg"><label>Nome struttura</label><input type="text" id="es-sito"></div>
+    <div class="fg"><label>Commessa</label><input type="text" id="es-commessa" placeholder="Es. 12345" autocomplete="off" autocorrect="off" autocapitalize="off" inputmode="numeric" pattern="[0-9]*" name="search2" onfocus="this.removeAttribute('readonly')" readonly></div>
+    <div class="fg"><label>Periodo</label><input type="month" id="es-data"></div>
+    <button class="btn btn-accent" onclick="saveEditSess()">Salva modifiche</button>
+    <button class="btn btn-ghost" onclick="closeOv('ov-edit-sess')">Annulla</button>
+  </div>
+</div>
+
+<!-- SHEET: AGGIUNGI PROBLEMA -->
 <div class="overlay" id="ov-add">
   <div class="sheet">
     <div class="handle"></div>
-    <div class="sheet-title" id="add-title">Nuovo problema</div>
+    <div class="sheet-title">Nuovo problema</div>
 
     <div class="fg">
       <label>Tipo</label>
-      <div class="tags" id="add-tags">
-        <div class="tag" data-cat="terra"   data-icon="⚠️" data-lbl="Messa a terra"    onclick="selTag(this,'add')">⚠️ Messa a terra</div>
-        <div class="tag" data-cat="diff"    data-icon="🔁" data-lbl="Differenziale"    onclick="selTag(this,'add')">🔁 Differenziale</div>
-        <div class="tag" data-cat="scatola" data-icon="📦" data-lbl="Scatola aperta"   onclick="selTag(this,'add')">📦 Scatola aperta</div>
-        <div class="tag" data-cat="quadro"  data-icon="🗄️" data-lbl="Quadro"           onclick="selTag(this,'add')">🗄️ Quadro</div>
-        <div class="tag" data-cat="altro"   data-icon="✏️" data-lbl="Altro"            onclick="selTag(this,'add')">✏️ Altro</div>
+      <div class="tags">
+        <div class="tag" data-cat="terra"   data-icon="~" data-lbl="Messa a terra"  onclick="selTag(this,'add')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v6M8 8l4 4 4-4M3 16h18M6 20h12"/></svg> Messa a terra</div>
+        <div class="tag" data-cat="diff"    data-icon="~" data-lbl="Differenziale"  onclick="selTag(this,'add')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg> Differenziale</div>
+        <div class="tag" data-cat="scatola" data-icon="~" data-lbl="Scatola aperta" onclick="selTag(this,'add')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg> Scatola aperta</div>
+        <div class="tag" data-cat="quadro"  data-icon="~" data-lbl="Quadro"         onclick="selTag(this,'add')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Quadro</div>
+        <div class="tag" data-cat="altro"   data-icon="~" data-lbl="Altro"          onclick="selTag(this,'add')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg> Altro</div>
       </div>
     </div>
-
-    <!-- generic -->
     <div class="dyn hide" id="add-f-gen">
-      <div class="fg">
-        <label>Descrizione</label>
-        <textarea id="add-desc" placeholder="Es: presa corridoio bagni&#10;scatola retro bancone bar&#10;quadro vicino caravan 45" rows="3"></textarea>
-      </div>
+      <div class="fg"><label id="add-desc-lbl">Descrizione</label><textarea id="add-desc" placeholder="Es: presa corridoio bagni" rows="3"></textarea></div>
     </div>
-
-    <!-- diff -->
     <div class="dyn hide" id="add-f-diff">
-      <div class="fg"><label>Nome interruttore</label><input type="text" id="add-d-nome" placeholder='Es. "Antincendio", "Zona Q"'></div>
+      <div class="fg"><label>Nome interruttore</label><input type="text" id="add-d-nome" placeholder='Es. "Antincendio"'></div>
       <div class="fg"><label>Nome quadro</label><input type="text" id="add-d-qdr" placeholder='Es. "QE Generale zona piscine"'></div>
-      <div class="fg"><label>Posizione quadro</label><input type="text" id="add-d-pos" placeholder="Es. botola zona 11, fianco appart. zona 15"></div>
+      <div class="fg"><label>Posizione quadro</label><input type="text" id="add-d-pos" placeholder="Es. botola zona 11"></div>
     </div>
-
     <div class="fg">
       <label>Foto (opzionale)</label>
-      <div class="photo-zone" onclick="document.getElementById('add-photo-in').click()">
-        <img id="add-photo-prev" class="photo-prev" alt="">
-        <div id="add-photo-ph">📷 Scatta o scegli foto</div>
-        <input type="file" id="add-photo-in" accept="image/*" capture="environment" onchange="handlePhoto('add',event)" style="display:none">
+      <img id="add-ph-prev" class="photo-prev" style="display:none;width:100%;max-height:180px;object-fit:cover;border-radius:var(--rs);margin-bottom:4px" alt="">
+      <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('add-ph-in-gal').click()" style="flex:1;padding:13px;border:1px solid var(--border);border-radius:var(--rs);background:var(--s2);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-size:13px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Galleria
+        </button>
+        <button onclick="document.getElementById('add-ph-in-cam').click()" style="flex:1;padding:13px;border:1px solid var(--border);border-radius:var(--rs);background:var(--s2);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-size:13px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Fotocamera
+        </button>
       </div>
-      <div id="add-photo-rm" class="photo-rm" onclick="removePhoto('add')">✕ Rimuovi foto</div>
+      <input type="file" id="add-ph-in-cam" accept="image/*" capture="environment" onchange="handlePhoto('add',event)" style="display:none">
+      <input type="file" id="add-ph-in-gal" accept="image/*" onchange="handlePhoto('add',event)" style="display:none">
+      <div id="add-ph-rm" class="photo-rm" onclick="removePhoto('add')">✕ Rimuovi foto</div>
     </div>
-
     <button class="btn btn-accent" onclick="saveProb()">Aggiungi problema</button>
     <button class="btn btn-ghost" onclick="closeOv('ov-add')">Annulla</button>
   </div>
 </div>
 
-<!-- ════════════ SHEET: MODIFICA PROBLEMA ════════════ -->
+<!-- SHEET: MODIFICA PROBLEMA -->
 <div class="overlay" id="ov-edit">
   <div class="sheet">
     <div class="handle"></div>
     <div class="sheet-title">Modifica problema</div>
-
     <div class="fg">
       <label>Tipo</label>
       <div class="tags" id="edit-tags">
-        <div class="tag" data-cat="terra"   data-icon="⚠️" data-lbl="Messa a terra"    onclick="selTag(this,'edit')">⚠️ Messa a terra</div>
-        <div class="tag" data-cat="diff"    data-icon="🔁" data-lbl="Differenziale"    onclick="selTag(this,'edit')">🔁 Differenziale</div>
-        <div class="tag" data-cat="scatola" data-icon="📦" data-lbl="Scatola aperta"   onclick="selTag(this,'edit')">📦 Scatola aperta</div>
-        <div class="tag" data-cat="quadro"  data-icon="🗄️" data-lbl="Quadro"           onclick="selTag(this,'edit')">🗄️ Quadro</div>
-        <div class="tag" data-cat="altro"   data-icon="✏️" data-lbl="Altro"            onclick="selTag(this,'edit')">✏️ Altro</div>
+        <div class="tag" data-cat="terra"   data-icon="~" data-lbl="Messa a terra"  onclick="selTag(this,'edit')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v6M8 8l4 4 4-4M3 16h18M6 20h12"/></svg> Messa a terra</div>
+        <div class="tag" data-cat="diff"    data-icon="~" data-lbl="Differenziale"  onclick="selTag(this,'edit')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg> Differenziale</div>
+        <div class="tag" data-cat="scatola" data-icon="~" data-lbl="Scatola aperta" onclick="selTag(this,'edit')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg> Scatola aperta</div>
+        <div class="tag" data-cat="quadro"  data-icon="~" data-lbl="Quadro"         onclick="selTag(this,'edit')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg> Quadro</div>
+        <div class="tag" data-cat="altro"   data-icon="~" data-lbl="Altro"          onclick="selTag(this,'edit')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg> Altro</div>
       </div>
     </div>
-
     <div class="dyn hide" id="edit-f-gen">
       <div class="fg"><label>Descrizione</label><textarea id="edit-desc" rows="3"></textarea></div>
     </div>
@@ -467,30 +349,35 @@ body {
       <div class="fg"><label>Nome quadro</label><input type="text" id="edit-d-qdr"></div>
       <div class="fg"><label>Posizione quadro</label><input type="text" id="edit-d-pos"></div>
     </div>
-
     <div class="fg">
       <label>Foto</label>
-      <div class="photo-zone" onclick="document.getElementById('edit-photo-in').click()">
-        <img id="edit-photo-prev" class="photo-prev" alt="">
-        <div id="edit-photo-ph">📷 Scatta o scegli foto</div>
-        <input type="file" id="edit-photo-in" accept="image/*" capture="environment" onchange="handlePhoto('edit',event)" style="display:none">
+      <img id="edit-ph-prev" class="photo-prev" style="display:none;width:100%;max-height:180px;object-fit:cover;border-radius:var(--rs);margin-bottom:4px" alt="">
+      <div style="display:flex;gap:8px">
+        <button onclick="document.getElementById('edit-ph-in-gal').click()" style="flex:1;padding:13px;border:1px solid var(--border);border-radius:var(--rs);background:var(--s2);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-size:13px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+          Galleria
+        </button>
+        <button onclick="document.getElementById('edit-ph-in-cam').click()" style="flex:1;padding:13px;border:1px solid var(--border);border-radius:var(--rs);background:var(--s2);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;font-size:13px">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Fotocamera
+        </button>
       </div>
-      <div id="edit-photo-rm" class="photo-rm" onclick="removePhoto('edit')">✕ Rimuovi foto</div>
+      <input type="file" id="edit-ph-in-cam" accept="image/*" capture="environment" onchange="handlePhoto('edit',event)" style="display:none">
+      <input type="file" id="edit-ph-in-gal" accept="image/*" onchange="handlePhoto('edit',event)" style="display:none">
+      <div id="edit-ph-rm" class="photo-rm" onclick="removePhoto('edit')">✕ Rimuovi foto</div>
     </div>
-
     <button class="btn btn-accent" onclick="saveEdit()">Salva modifiche</button>
     <button class="btn btn-ghost" onclick="closeOv('ov-edit')">Annulla</button>
   </div>
 </div>
 
-<!-- ════════════ SHEET: PDF POPUP ════════════ -->
+<!-- SHEET: PDF -->
 <div class="overlay" id="ov-pdf">
   <div class="sheet">
     <div class="handle"></div>
     <div class="sheet-title">Genera verbale</div>
-    <div class="sheet-sub">Scegli come generare il documento</div>
     <div class="pdf-popup">
-      <div class="pdf-opt" onclick="doGeneratePDF(false)">
+      <div class="pdf-opt" onclick="doGenerate(false)">
         <div class="pdf-opt-icon">📄</div>
         <div class="pdf-opt-body">
           <div class="pdf-opt-title">Genera PDF</div>
@@ -498,11 +385,11 @@ body {
         </div>
       </div>
       <div class="pdf-divider"></div>
-      <div class="pdf-opt" onclick="doGeneratePDF(true)" id="opt-ai">
+      <div class="pdf-opt" onclick="doGenerate(true)">
         <div class="pdf-opt-icon">✦</div>
         <div class="pdf-opt-body">
-          <div class="pdf-opt-title">Genera con AI <span style="font-size:11px;color:var(--text2);font-weight:400">(richiede configurazione)</span></div>
-          <div class="pdf-opt-sub">Frasi riformulate e rifinite</div>
+          <div class="pdf-opt-title">Genera con AI</div>
+          <div class="pdf-opt-sub">Frasi rifinite automaticamente</div>
         </div>
         <div class="spin" id="ai-spin"></div>
       </div>
@@ -511,123 +398,498 @@ body {
   </div>
 </div>
 
+<!-- SHEET: SETTINGS -->
+<div class="overlay" id="ov-settings">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="sheet-title" style="display:flex;align-items:center;justify-content:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> Impostazioni</div>
+
+    <!-- Tema -->
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0">
+      <div>
+        <div style="font-size:14px;font-weight:600">Tema</div>
+        <div style="font-size:12px;color:var(--t2);margin-top:2px">Chiaro o scuro</div>
+      </div>
+      <div style="display:flex;background:var(--s2);border:1px solid var(--border);border-radius:var(--rs);padding:3px;gap:3px">
+        <button id="theme-light-btn" onclick="setTheme('light')" style="padding:7px 14px;border:none;border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s">☀️</button>
+        <button id="theme-dark-btn" onclick="setTheme('dark')" style="padding:7px 14px;border:none;border-radius:7px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .15s">🌙</button>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- OpenAI -->
+    <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg> API Key OpenAI</div>
+    <div class="fg">
+      <input type="password" id="key-input" placeholder="sk-..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="key-status" id="key-status">✓ Configurata</div>
+
+    <div class="divider"></div>
+
+    <!-- JSONBin -->
+    <div style="font-size:13px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:7px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 109 20h9a5 5 0 000-10z"/></svg> Sync cloud (JSONBin)</div>
+    <div class="fg">
+      <label>API Key</label>
+      <input type="password" id="jb-key-input" placeholder="$2a$10$..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="fg">
+      <label>Bin ID</label>
+      <input type="text" id="jb-bin-input" placeholder="65f3a2b1..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="key-status" id="jb-status">✓ Configurato</div>
+
+    <button class="btn btn-accent" onclick="saveKey()">Salva impostazioni</button>
+    <button class="btn btn-danger" onclick="clearKey()" id="btn-clear-key" style="display:none">Rimuovi chiavi</button>
+    <button class="btn btn-ghost" onclick="closeOv('ov-settings')">Chiudi</button>
+    <p style="font-size:11px;color:var(--t3);text-align:center;line-height:1.5">Le chiavi sono salvate solo su questo dispositivo.</p>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ══ STORAGE ══
-const STORE_KEY = 'rilievi_v4';
-let DB = JSON.parse(localStorage.getItem(STORE_KEY) || '{"sessions":[]}');
-let curSessId = null;
-let addPhoto = null, editPhoto = null;
-let curAddTag = null, curEditTag = null;
-let editProbIdx = null;
+// ══ DB ══
+const STORE = 'rilievi_v4';
+let DB = (() => { try { return JSON.parse(localStorage.getItem(STORE) || '{"sessions":[]}'); } catch(e) { return {"sessions":[]}; } })();
+const saveDB = () => {
+  localStorage.setItem(STORE, JSON.stringify(DB));
+  syncToCloud().catch(()=>{});
+};
 
-const save = () => localStorage.setItem(STORE_KEY, JSON.stringify(DB));
-const curSess = () => DB.sessions.find(s => s.id === curSessId);
+const getJBKey = () => localStorage.getItem('rilievi_jb_key') || '';
+const getJBBin = () => localStorage.getItem('rilievi_jb_bin') || '';
+
+async function syncToCloud() {
+  const key = getJBKey(), bin = getJBBin();
+  if (!key || !bin) return;
+  const ind = document.getElementById('sync-indicator');
+  if(ind){ind.style.display='block';ind.textContent='⟳ Sincronizzazione...';}
+  // Strip photos before saving to cloud (too large)
+  const slim = { sessions: DB.sessions.map(s => ({
+    ...s,
+    probs: s.probs.map(p => ({ ...p, photo: p.photo ? '__photo__' : null }))
+  }))};
+  const r = await fetch(`https://api.jsonbin.io/v3/b/${bin}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', 'X-Access-Key': key },
+    body: JSON.stringify(slim)
+  });
+  const ind2 = document.getElementById('sync-indicator');
+  if(ind2){ind2.textContent=r.ok?'✓ Sincronizzato':'⚠ Errore sync';setTimeout(()=>{ind2.style.display='none';},2000);}
+}
+
+async function syncFromCloud() {
+  const key = getJBKey(), bin = getJBBin();
+  if (!key || !bin) return;
+  const resp = await fetch(`https://api.jsonbin.io/v3/b/${bin}/latest`, {
+    headers: { 'X-Access-Key': key }
+  });
+  if (!resp.ok) throw new Error('sync error');
+  const data = await resp.json();
+  const remote = data.record;
+  if (!remote || !remote.sessions) return;
+  // Merge: keep local photos, update rest from remote
+  const localMap = {};
+  (DB.sessions||[]).forEach(s => localMap[s.id] = s);
+  DB.sessions = remote.sessions.map(rs => {
+    const local = localMap[rs.id];
+    if (!local) return rs;
+    return {
+      ...rs,
+      probs: rs.probs.map((rp, i) => ({
+        ...rp,
+        photo: (rp.photo === '__photo__' && local.probs[i]) ? local.probs[i].photo : rp.photo
+      }))
+    };
+  });
+  localStorage.setItem(STORE, JSON.stringify(DB));
+}
+let curId = null;
+const cur = () => DB.sessions.find(s => s.id === curId);
 
 // ══ THEME ══
-const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+const getTheme = () => document.documentElement.getAttribute('data-theme');
 function toggleTheme() {
-  const next = isDark() ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('rilievi_theme', next);
-  const ico = next === 'dark' ? '🌙' : '☀️';
-  document.getElementById('theme-btn').textContent = ico;
-  document.getElementById('theme-btn2').textContent = ico;
+  const t = getTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('rilievi_theme', t);
+  updateThemeIcons();
 }
-// init theme
+function updateThemeIcons() {
+  const ico = getTheme() === 'dark' ? '🌙' : '☀️';
+  ['theme-btn','theme-btn2'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = ico; });
+}
 const savedTheme = localStorage.getItem('rilievi_theme') || 'dark';
 document.documentElement.setAttribute('data-theme', savedTheme);
-document.addEventListener('DOMContentLoaded', () => {
-  const ico = savedTheme === 'dark' ? '🌙' : '☀️';
-  document.getElementById('theme-btn').textContent = ico;
-  document.getElementById('theme-btn2').textContent = ico;
-});
+
+// ══ API KEY ══
+const getKey = () => localStorage.getItem('rilievi_key') || '';
+function saveKey() {
+  const k = document.getElementById('key-input').value.trim();
+  const jbKey = document.getElementById('jb-key-input').value.trim();
+  const jbBin = document.getElementById('jb-bin-input').value.trim();
+  if (k && !k.startsWith('sk-')) { toast('⚠️ Chiave OpenAI non valida'); return; }
+  if (k) localStorage.setItem('rilievi_key', k);
+  if (jbKey) localStorage.setItem('rilievi_jb_key', jbKey);
+  if (jbBin) localStorage.setItem('rilievi_jb_bin', jbBin);
+  updateKeySheet();
+  toast('✓ Impostazioni salvate');
+  if (jbKey && jbBin) {
+    syncFromCloud().then(() => { renderHome(); toast('✓ Dati sincronizzati dal cloud'); }).catch(() => {});
+  }
+  setTimeout(() => closeOv('ov-settings'), 1200);
+}
+function clearKey() {
+  if (!confirm('Rimuovere tutte le chiavi?')) return;
+  ['rilievi_key','rilievi_jb_key','rilievi_jb_bin'].forEach(k=>localStorage.removeItem(k));
+  ['key-input','jb-key-input','jb-bin-input'].forEach(id=>document.getElementById(id).value='');
+  updateKeySheet();
+  toast('Chiavi rimosse');
+}
+function updateKeySheet() {
+  const hasOAI = !!getKey();
+  const hasJB = !!(localStorage.getItem('rilievi_jb_key') && localStorage.getItem('rilievi_jb_bin'));
+  document.getElementById('key-status').style.display = hasOAI ? 'block' : 'none';
+  document.getElementById('jb-status').style.display = hasJB ? 'block' : 'none';
+  document.getElementById('btn-clear-key').style.display = (hasOAI||hasJB) ? 'flex' : 'none';
+  if (hasOAI) document.getElementById('key-input').value = getKey();
+  if (localStorage.getItem('rilievi_jb_key')) document.getElementById('jb-key-input').value = localStorage.getItem('rilievi_jb_key');
+  if (localStorage.getItem('rilievi_jb_bin')) document.getElementById('jb-bin-input').value = localStorage.getItem('rilievi_jb_bin');
+  // Update theme buttons
+  const isDk = getTheme()==='dark';
+  const lb=document.getElementById('theme-light-btn'), db=document.getElementById('theme-dark-btn');
+  if(lb&&db){
+    lb.style.background=isDk?'none':'var(--accent)'; lb.style.color=isDk?'var(--t2)':'#fff';
+    db.style.background=isDk?'var(--accent)':'none'; db.style.color=isDk?'#fff':'var(--t2)';
+  }
+}
+
+function setTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('rilievi_theme', t);
+  updateKeySheet();
+}
 
 // ══ NAV ══
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
-  window.scrollTo(0, 0);
+  window.scrollTo(0,0);
+}
+function goHome() { curId = null; sessionStorage.removeItem('rilievi_cur'); renderHome(); show('s-home'); }
+
+let dragSrcId = null;
+function dragStart(e, id) {
+  dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.style.opacity = '0.4';
+}
+function dragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; }
+function dragEnd(e) { e.currentTarget.style.opacity = '1'; }
+function dragDrop(e, targetId) {
+  e.stopPropagation();
+  if (dragSrcId === targetId) return;
+  const sessions = DB.sessions;
+  const srcIdx = sessions.findIndex(s=>s.id===dragSrcId);
+  const tgtIdx = sessions.findIndex(s=>s.id===targetId);
+  if (srcIdx<0||tgtIdx<0) return;
+  const [moved] = sessions.splice(srcIdx,1);
+  sessions.splice(tgtIdx,0,moved);
+  saveDB(); renderHome();
 }
 
-function goHome() { curSessId = null; renderHome(); show('s-home'); }
+function toggleDone(id) {
+  const s = DB.sessions.find(x=>x.id===id);
+  if (!s) return;
+  s.done = !s.done;
+  saveDB(); renderHome();
+  toast(s.done ? '✓ Segnata come completata' : 'Riaperta');
+}
+
+function openEditSessById(id) {
+  curId = id;
+  openEditSess();
+}
+
+function openEditSess() {
+  const s = cur();
+  document.getElementById('es-cli').value = s.cli||'';
+  document.getElementById('es-via').value = s.via||'';
+  document.getElementById('es-cap').value = s.cap||'';
+  document.getElementById('es-op-via').value = (s.opVia===s.via)?'':(s.opVia||'');
+  document.getElementById('es-op-cap').value = (s.opCap===s.cap)?'':(s.opCap||'');
+  document.getElementById('es-sito').value = s.sito||'';
+  document.getElementById('es-commessa').value = s.commessa||'';
+  document.getElementById('es-data').value = s.data||'';
+  openOv('ov-edit-sess');
+}
+
+function saveEditSess() {
+  const cli=gv('es-cli'),via=gv('es-via'),cap=gv('es-cap'),data=gv('es-data');
+  if(!cli||!via||!cap||!data){toast('Compila i campi obbligatori');return;}
+  const s=cur();
+  const opVia=gv('es-op-via'),opCap=gv('es-op-cap');
+  s.cli=cli;s.via=via;s.cap=cap;
+  s.opVia=opVia||via;s.opCap=opCap||cap;
+  s.sito=gv('es-sito');s.commessa=gv('es-commessa');s.data=data;
+  saveDB();
+  document.getElementById('v-title').textContent=s.cli;
+  document.getElementById('v-sub').textContent=fmtD(s.data)+(s.sito?' · '+s.sito:'')+(s.commessa?' · #'+s.commessa:'');
+  closeOv('ov-edit-sess');
+  toast('Verifica aggiornata');
+}
+
+// ══ OVERLAY ══
+function openOv(id) {
+  document.getElementById(id).classList.add('open');
+  if (id === 'ov-key') updateKeySheet();
+}
+function closeOv(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
 
 // ══ HOME ══
 function renderHome() {
   const el = document.getElementById('sess-list');
-  if (!DB.sessions.length) {
-    el.innerHTML = '<div class="empty"><span class="empty-ico">📋</span>Nessuna verifica salvata.<br>Premi <strong>+ Nuova</strong> per iniziare.</div>';
-    return;
-  }
-  el.innerHTML = DB.sessions.slice().reverse().map(s => `
-    <div class="sess-card" onclick="openSess('${s.id}')">
-      <div class="sess-count">${s.probs.length}</div>
+
+  // Search filter
+  const q = (document.getElementById('search-input')?.value||'').toLowerCase().trim();
+  const filtered = DB.sessions.filter(s=>
+    !q ||
+    s.cli.toLowerCase().includes(q) ||
+    (s.commessa||'').toLowerCase().includes(q) ||
+    (s.sito||'').toLowerCase().includes(q)
+  );
+  // Split: in corso vs completate
+  const inCorso = filtered.filter(s=>!s.done).reverse();
+  const completate = filtered.filter(s=>s.done).reverse();
+
+  const cardColor = s => {
+    if (s.done) return {bg:'rgba(139,92,246,0.15)',border:'rgba(139,92,246,0.35)',text:'#a78bfa'};
+    if ((s.mode||'std')==='ai') return {bg:'rgba(59,130,246,0.12)',border:'rgba(59,130,246,0.3)',text:'#60a5fa'};
+    return {bg:'rgba(245,166,35,0.12)',border:'rgba(245,166,35,0.28)',text:'var(--accent)'};
+  };
+
+  const renderCard = s => {
+    const cc = cardColor(s);
+    return `
+    <div class="sess-card ${s.done?'sess-done':''}" draggable="true"
+      ondragstart="dragStart(event,'${s.id}')" ondragover="dragOver(event)" ondrop="dragDrop(event,'${s.id}')"
+      ondragend="dragEnd(event)" onclick="openSess('${s.id}')">
+      <div class="sess-cnt" style="background:${cc.bg};border-color:${cc.border};color:${cc.text};${s.commessa?'font-size:13px;padding:0 6px;width:auto;min-width:44px;':''}">
+        ${s.commessa?esc(s.commessa):s.probs.length}
+      </div>
       <div class="sess-info">
         <div class="sess-name">${esc(s.cli)}</div>
-        <div class="sess-meta">${fmtD(s.data)}${s.sito ? ' · ' + esc(s.sito) : ''} · ${s.probs.length} probl.</div>
+        <div class="sess-meta">${fmtD(s.data)}${s.sito?' · '+esc(s.sito):''} · ${s.probs.length} probl.</div>
       </div>
-      <button class="sess-del" onclick="event.stopPropagation();delSess('${s.id}')">✕</button>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="sess-act" onclick="event.stopPropagation();toggleDone('${s.id}')" title="${s.done?'Riapri':'Segna completata'}">
+          ${s.done?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9 12l2 2 4-4"/></svg>'}
+        </button>
+        <button class="sess-act" onclick="event.stopPropagation();openEditSessById('${s.id}')" title="Modifica">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="sess-act sess-act-del" onclick="event.stopPropagation();delSess('${s.id}')" title="Elimina">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
     </div>
-  `).join('');
+  `;
+  };
+
+  let html = '';
+  if (inCorso.length) {
+    html += inCorso.map(renderCard).join('');
+  }
+  if (completate.length) {
+    html += `<div class="sess-section-lbl">Completate</div>`;
+    html += completate.map(renderCard).join('');
+  }
+  if (!html) {
+    html = '<div class="empty"><span class="empty-ico">📋</span>Nessuna verifica salvata.<br>Premi <strong>+ Nuova</strong> per iniziare.</div>';
+  }
+  el.innerHTML = html;
+}
+
+function openNewSess() {
+  document.getElementById('n-data').value = new Date().toISOString().slice(0,7);
+  ['n-cli','n-via','n-cap','n-op-via','n-op-cap','n-sito','n-commessa'].forEach(id => document.getElementById(id).value = '');
+  openOv('ov-new');
+}
+
+function createSess() {
+  const cli=gv('n-cli'), via=gv('n-via'), cap=gv('n-cap'), data=gv('n-data');
+  if (!cli||!via||!cap||!data) { toast('⚠️ Compila cliente, indirizzo e data'); return; }
+  const opVia=gv('n-op-via'), opCap=gv('n-op-cap');
+  const s = { id: Date.now().toString(), cli, via, cap, opVia:opVia||via, opCap:opCap||cap, sito:gv('n-sito'), commessa:gv('n-commessa'), data, probs:[] };
+  DB.sessions.push(s);
+  saveDB(); closeOv('ov-new'); openSess(s.id);
 }
 
 function delSess(id) {
   if (!confirm('Eliminare questa verifica?')) return;
   DB.sessions = DB.sessions.filter(s => s.id !== id);
-  save(); renderHome(); toast('Verifica eliminata');
-}
-
-// ══ NEW SESSION ══
-function createSession() {
-  const cli = gv('n-cli'), via = gv('n-via'), cap = gv('n-cap'), data = gv('n-data');
-  if (!cli || !via || !cap || !data) { toast('⚠️ Compila cliente, indirizzo e data'); return; }
-  const opVia = gv('n-op-via'), opCap = gv('n-op-cap');
-  const sess = {
-    id: Date.now().toString(),
-    cli,
-    via, cap,
-    opVia: opVia || via,
-    opCap: opCap || cap,
-    sito: gv('n-sito'),
-    data,
-    probs: []
-  };
-  DB.sessions.push(sess);
-  save(); closeOv('ov-new');
-  openSess(sess.id);
+  saveDB(); renderHome(); toast('Verifica eliminata');
 }
 
 // ══ SESSION ══
 function openSess(id) {
-  curSessId = id;
-  const s = curSess();
+  curId = id;
+  const s = cur();
   document.getElementById('v-title').textContent = s.cli;
-  document.getElementById('v-sub').textContent = fmtD(s.data) + (s.sito ? ' · ' + s.sito : '');
-  renderProbs();
-  show('s-ver');
+  document.getElementById('v-sub').textContent = fmtD(s.data) + (s.sito?' · '+s.sito:'') + (s.commessa?' · #'+s.commessa:'');
+  updateDoneBtn();
+  updateModeHeader();
+  renderProbs(); show('s-ver');
+}
+
+function setSessMode(m) {
+  const s = cur(); if(!s) return;
+  s.mode = m;
+  saveDB();
+  updateModeHeader();
+}
+
+function toggleSessMode() {
+  const s = cur(); if(!s) return;
+  if (s.done) { toast('Riapri la verifica per cambiare modalità'); return; }
+  setSessMode((s.mode||'std')==='std' ? 'ai' : 'std');
+}
+
+function updateModeHeader() {
+  const s = cur(); if(!s) return;
+  // If done, violet has priority — don't override
+  if (s.done) return;
+  const m = s.mode || 'std';
+  const btn = document.getElementById('hdr-mode-btn');
+  const screen = document.getElementById('s-ver');
+  const btmBtn = document.getElementById('btn-genera');
+  const isAI = m === 'ai';
+
+  if (btn) {
+    if (isAI) {
+      btn.textContent = 'AI';
+      btn.style.background = '#3b82f6';
+      btn.style.color = '#fff';
+      btn.style.boxShadow = '0 0 10px rgba(59,130,246,0.4)';
+    } else {
+      btn.textContent = 'STD';
+      btn.style.background = 'var(--accent)';
+      btn.style.color = '#111';
+      btn.style.boxShadow = '0 0 10px rgba(245,166,35,0.3)';
+    }
+  }
+
+  // Tint the header bar
+  const hdr = screen ? screen.querySelector('.hdr') : null;
+  if (hdr) {
+    hdr.style.borderBottom = isAI
+      ? '1px solid rgba(59,130,246,0.3)'
+      : '1px solid var(--border)';
+    hdr.style.background = isAI
+      ? (getTheme()==='dark' ? '#0d1520' : '#eff6ff')
+      : 'var(--s1)';
+  }
+
+  // Tint generate button
+  if (btmBtn) {
+    btmBtn.style.background = isAI ? '#3b82f6' : 'var(--accent)';
+    btmBtn.textContent = isAI ? '✦ Genera PDF con AI' : '📄 Genera PDF';
+  }
+
+  // Tint FAB
+  const fab = document.querySelector('#s-ver .fab');
+  if (fab) {
+    fab.style.background = isAI ? '#3b82f6' : 'var(--accent)';
+    fab.style.boxShadow = isAI ? '0 4px 18px rgba(59,130,246,0.4)' : '0 4px 18px rgba(245,166,35,.35)';
+  }
+
+  addMode = m;
+
+  // Update prob card numbers color
+  document.querySelectorAll('.prob-num').forEach(el => {
+    if (isAI) {
+      el.style.background='rgba(59,130,246,0.12)';
+      el.style.borderColor='rgba(59,130,246,0.3)';
+      el.style.color='#60a5fa';
+    } else {
+      el.style.background='var(--adim)';
+      el.style.borderColor='var(--aborder)';
+      el.style.color='var(--accent)';
+    }
+  });
+}
+
+function updateDoneBtn() {
+  const s = cur(); if(!s) return;
+  const lbl = document.getElementById('btn-done-lbl');
+  const btn = document.getElementById('btn-done-sess');
+  const hdr = document.querySelector('#s-ver .hdr');
+  const fab = document.querySelector('#s-ver .fab');
+  const modeBtn = document.getElementById('hdr-mode-btn');
+  const genBtn = document.getElementById('btn-genera');
+
+  if (s.done) {
+    lbl.textContent = 'Riapri verifica';
+    btn.style.color = '#a78bfa';
+    btn.style.borderColor = 'rgba(139,92,246,0.35)';
+    btn.style.background = 'rgba(139,92,246,0.1)';
+    // Tint everything violet
+    if(hdr){ hdr.style.background = getTheme()==='dark'?'#120e1e':'#f5f0ff'; hdr.style.borderBottom='1px solid rgba(139,92,246,0.3)'; }
+    if(fab){ fab.style.background='#7c3aed'; fab.style.boxShadow='0 4px 18px rgba(124,58,237,0.4)'; }
+    if(modeBtn){ modeBtn.style.background='#7c3aed'; modeBtn.style.color='#fff'; modeBtn.style.boxShadow='0 0 10px rgba(124,58,237,0.3)'; modeBtn.style.opacity='0.6'; modeBtn.style.cursor='not-allowed'; }
+    if(genBtn){ genBtn.style.background='#7c3aed'; genBtn.style.opacity='0.6'; genBtn.style.cursor='not-allowed'; }
+    document.querySelectorAll('.prob-num').forEach(el => {
+      el.style.background='rgba(139,92,246,0.15)';
+      el.style.borderColor='rgba(139,92,246,0.35)';
+      el.style.color='#a78bfa';
+    });
+  } else {
+    lbl.textContent = 'Segna come completata';
+    btn.style.color = ''; btn.style.borderColor = ''; btn.style.background = '';
+    // Restore opacity on mode btn and generate btn
+    if(modeBtn){ modeBtn.style.opacity=''; modeBtn.style.cursor=''; }
+    if(genBtn){ genBtn.style.opacity=''; genBtn.style.cursor=''; }
+    // Restore mode colors
+    updateModeHeader();
+  }
+}
+
+function toggleDoneFromSession() {
+  const s = cur(); if(!s) return;
+  s.done = !s.done;
+  saveDB();
+  updateDoneBtn();
+  toast(s.done ? '✓ Segnata come completata' : 'Riaperta');
 }
 
 function renderProbs() {
-  const s = curSess();
+  const s = cur();
   const el = document.getElementById('prob-list');
   if (!s.probs.length) {
     el.innerHTML = '<div class="empty"><span class="empty-ico">🔍</span>Nessun problema aggiunto.<br>Premi <strong>+</strong> per iniziare.</div>';
     return;
   }
-  el.innerHTML = s.probs.map((p, i) => `
-    <div class="prob-card">
+  el.innerHTML = s.probs.map((p,i) => `
+    <div class="prob-card" style="position:relative">
       <div class="prob-main">
         <div class="prob-num">${i+1}</div>
-        <div class="prob-body">
-          <div class="prob-badge">${p.icon} ${esc(p.lbl)}</div>
+        <div class="prob-body" style="padding-right:32px">
+          <div class="prob-badge">${esc(p.lbl)}</div>
           <div class="prob-text">${esc(buildText(p))}</div>
         </div>
+        <button onclick="openEditProb(${i})" style="position:absolute;top:10px;right:10px;width:28px;height:28px;border:1px solid var(--border);border-radius:var(--rx);background:var(--s2);color:var(--t2);cursor:pointer;display:flex;align-items:center;justify-content:center">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
       </div>
-      ${p.photo ? `<img class="prob-photo" src="${p.photo}" alt="">` : ''}
-      <div class="prob-actions">
-        <button class="btn btn-ghost btn-sm" onclick="openEditProb(${i})">✏️ Modifica</button>
-        <button class="btn btn-danger btn-sm" onclick="delProb(${i})">✕ Elimina</button>
+      ${p.photo?`<img class="prob-photo" src="${p.photo}" alt="">`:''}
+      <div style="display:flex;justify-content:flex-end;padding:6px 10px;border-top:1px solid var(--border);background:var(--s2)">
+        <button onclick="delProb(${i})" style="width:28px;height:28px;border:1px solid rgba(224,85,85,.2);border-radius:var(--rx);background:var(--ddim);color:var(--danger);cursor:pointer;display:flex;align-items:center;justify-content:center">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+        </button>
       </div>
     </div>
   `).join('');
@@ -635,289 +897,573 @@ function renderProbs() {
 
 // ══ BUILD TEXT ══
 function buildText(p) {
-  if (p.cat === 'diff') {
-    return `Verificare il funzionamento dell'interruttore differenziale "${p.dNome}" presente nel quadro "${p.dQdr}"${p.dPos ? ' sito ' + p.dPos : ''}.`;
-  }
-  if (p.cat === 'terra') {
-    return `Verificare il collegamento all'impianto di messa a terra ${p.desc ? 'di ' + p.desc : ''}.`.replace(/\s+\./,'.').trim();
-  }
-  if (p.cat === 'scatola') {
-    return `Chiudere con apposito coperchio la scatola di derivazione${p.desc ? ' presente ' + p.desc : ''}.`;
-  }
-  if (p.cat === 'quadro') {
-    return `Sistemare il quadro elettrico${p.desc ? ' ' + p.desc : ''}.`;
-  }
-  return p.desc || '';
+  // In std mode: use exactly what user wrote (desc contains full sentence including prefix)
+  // In ai mode or diff: use structured build
+  if (p.cat==='diff') return `Verificare il funzionamento dell'interruttore differenziale "${p.dNome}" presente nel quadro "${p.dQdr}"${p.dPos?' sito '+p.dPos:''}.`;
+  // For all other cats in std mode, desc IS the full sentence (user edited the pre-filled text)
+  return p.desc||'';
 }
 
-// ══ ADD PROBLEM ══
+// ══ ADD PROB ══
+let addPh=null, editPh=null, addTag=null, editTag=null, editIdx=null;
+
 function openAddProb() {
-  curAddTag = null; addPhoto = null;
-  document.querySelectorAll('#add-tags .tag').forEach(t => t.classList.remove('on'));
-  document.querySelectorAll('#ov-add .dyn').forEach(f => f.classList.add('hide'));
-  ['add-desc','add-d-nome','add-d-qdr','add-d-pos'].forEach(id => document.getElementById(id).value = '');
-  resetPhoto('add');
-  openOv('ov-add');
+  addTag=null; addPh=null;
+  document.querySelectorAll('#ov-add .tag').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('#ov-add .dyn').forEach(f=>f.classList.add('hide'));
+  ['add-desc','add-d-nome','add-d-qdr','add-d-pos'].forEach(id=>document.getElementById(id).value='');
+  resetPh('add'); initModeToggle(); openOv('ov-add');
 }
 
-function saveProb() {
-  if (!curAddTag) { toast('⚠️ Scegli il tipo di problema'); return; }
-  const p = buildProbFromForm('add');
-  if (!p) return;
-  curSess().probs.push(p);
-  save(); renderProbs(); closeOv('ov-add');
-  toast('✓ Problema aggiunto');
-}
+// ══ MODE TOGGLE ══
+let addMode = localStorage.getItem('rilievi_add_mode') || 'std';
 
-// ══ EDIT PROBLEM ══
-function openEditProb(i) {
-  editProbIdx = i;
-  const p = curSess().probs[i];
-  // set tag
-  document.querySelectorAll('#edit-tags .tag').forEach(t => {
-    t.classList.remove('on');
-    if (t.dataset.cat === p.cat) t.classList.add('on');
-  });
-  curEditTag = { cat: p.cat, icon: p.icon, lbl: p.lbl };
-  document.querySelectorAll('#ov-edit .dyn').forEach(f => f.classList.add('hide'));
-  if (p.cat === 'diff') {
-    document.getElementById('edit-f-diff').classList.remove('hide');
-    document.getElementById('edit-d-nome').value = p.dNome || '';
-    document.getElementById('edit-d-qdr').value  = p.dQdr  || '';
-    document.getElementById('edit-d-pos').value  = p.dPos  || '';
+function setMode(m) {
+  addMode = m;
+  // Update description label and placeholder based on mode
+  const lbl = document.getElementById('add-desc-lbl');
+  const ta = document.getElementById('add-desc');
+  if (!lbl || !ta) return;
+  if (m === 'std') {
+    lbl.textContent = 'Descrizione';
+    ta.placeholder = 'Es: presa corridoio bagni';
   } else {
-    document.getElementById('edit-f-gen').classList.remove('hide');
-    document.getElementById('edit-desc').value = p.desc || '';
+    lbl.textContent = 'Appunto rapido (AI espande)';
+    ta.placeholder = 'Es: presa bagni, diff guasto cucina...';
+    // Clear prefill if switching to AI
+    const prefixes = Object.values(CAT_PREFIX);
+    if (prefixes.some(p => p && ta.value === p)) ta.value = '';
   }
-  editPhoto = p.photo || null;
-  const prev = document.getElementById('edit-photo-prev');
-  if (p.photo) { prev.src = p.photo; prev.style.display = 'block'; document.getElementById('edit-photo-ph').style.display = 'none'; document.getElementById('edit-photo-rm').style.display = 'block'; }
-  else resetPhoto('edit');
-  document.getElementById('edit-photo-in').value = '';
-  openOv('ov-edit');
 }
 
-function saveEdit() {
-  if (!curEditTag) { toast('⚠️ Scegli il tipo'); return; }
-  const p = buildProbFromForm('edit');
-  if (!p) return;
-  curSess().probs[editProbIdx] = p;
-  save(); renderProbs(); closeOv('ov-edit');
-  toast('✓ Problema aggiornato');
+function initModeToggle() {
+  setMode(addMode);
 }
 
-function delProb(i) {
-  if (!confirm('Eliminare questo problema?')) return;
-  curSess().probs.splice(i, 1);
-  save(); renderProbs(); toast('Problema eliminato');
+// ══ OCR ══
+let ocrPhotoData = null;
+
+function openOCR() {
+  ocrPhotoData = null;
+  document.getElementById('ocr-ph-prev').style.display = 'none';
+  document.getElementById('ocr-ph-txt').style.display = 'block';
+  document.getElementById('ocr-ph-in').value = '';
+  document.getElementById('ocr-btn').style.display = 'none';
+  openOv('ov-ocr');
 }
 
-// ══ BUILD PROB FROM FORM ══
-function buildProbFromForm(mode) {
-  const tag = mode === 'add' ? curAddTag : curEditTag;
-  const photo = mode === 'add' ? addPhoto : editPhoto;
-  const p = { cat: tag.cat, icon: tag.icon, lbl: tag.lbl, photo };
-  if (tag.cat === 'diff') {
-    const nome = gv(mode+'-d-nome'), qdr = gv(mode+'-d-qdr'), pos = gv(mode+'-d-pos');
-    if (!nome || !qdr) { toast('⚠️ Inserisci nome interruttore e quadro'); return null; }
-    p.dNome = nome; p.dQdr = qdr; p.dPos = pos;
-  } else {
-    const desc = gv(mode+'-desc');
-    if (!desc && tag.cat !== 'scatola' && tag.cat !== 'quadro') { toast('⚠️ Inserisci una descrizione'); return null; }
-    p.desc = desc;
-  }
-  return p;
-}
-
-// ══ TAGS ══
-function selTag(el, mode) {
-  const prefix = '#' + (mode==='add'?'add':'edit') + '-tags .tag';
-  document.querySelectorAll(prefix).forEach(t => t.classList.remove('on'));
-  el.classList.add('on');
-  const tag = { cat: el.dataset.cat, icon: el.dataset.icon, lbl: el.dataset.lbl };
-  if (mode === 'add') curAddTag = tag;
-  else curEditTag = tag;
-  const isDiff = el.dataset.cat === 'diff';
-  document.querySelectorAll('#ov-' + mode + ' .dyn').forEach(f => f.classList.add('hide'));
-  if (!isDiff) document.getElementById(mode+'-f-gen').classList.remove('hide');
-  else document.getElementById(mode+'-f-diff').classList.remove('hide');
-}
-
-// ══ PHOTO ══
-function handlePhoto(mode, e) {
-  const file = e.target.files[0]; if (!file) return;
+function handleOCRPhoto(e) {
+  const file = e.target.files[0]; if(!file) return;
   const r = new FileReader();
   r.onload = ev => {
     const img = new Image();
     img.onload = () => {
-      const c = document.createElement('canvas');
-      const MAX = 1200; let w = img.width, h = img.height;
-      if (w > MAX) { h = h*MAX/w; w = MAX; }
-      if (h > MAX) { w = w*MAX/h; h = MAX; }
-      c.width = w; c.height = h;
-      c.getContext('2d').drawImage(img, 0, 0, w, h);
-      const data = c.toDataURL('image/jpeg', .75);
-      if (mode === 'add') addPhoto = data; else editPhoto = data;
-      const pv = document.getElementById(mode+'-photo-prev');
-      pv.src = data; pv.style.display = 'block';
-      document.getElementById(mode+'-photo-ph').style.display = 'none';
-      document.getElementById(mode+'-photo-rm').style.display = 'block';
+      const canvas = document.createElement('canvas');
+      const MAX = 1200; let w=img.width, h=img.height;
+      if(w>MAX){h=h*MAX/w;w=MAX;} if(h>MAX){w=w*MAX/h;h=MAX;}
+      canvas.width=w; canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      ocrPhotoData = canvas.toDataURL('image/jpeg',.85);
+      const pv = document.getElementById('ocr-ph-prev');
+      pv.src = ocrPhotoData; pv.style.display = 'block';
+      document.getElementById('ocr-ph-txt').style.display = 'none';
+      document.getElementById('ocr-btn').style.display = 'flex';
     };
     img.src = ev.target.result;
   };
   r.readAsDataURL(file);
 }
 
-function removePhoto(mode) {
-  if (mode === 'add') addPhoto = null; else editPhoto = null;
-  resetPhoto(mode);
-  document.getElementById(mode+'-photo-in').value = '';
+async function runOCR() {
+  const key = getKey();
+  if (!key) { toast('⚠️ Configura prima la API Key OpenAI (🔑)'); return; }
+  document.getElementById('ocr-lbl').textContent = 'Estrazione...';
+  document.getElementById('ocr-spin').style.display = 'block';
+  document.getElementById('ocr-btn').disabled = true;
+
+  try {
+    const base64 = ocrPhotoData.split(',')[1];
+    const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        max_tokens: 300,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: ocrPhotoData } },
+            { type: 'text', text: 'Estrai i dati di intestazione da questa immagine. Rispondi SOLO con un JSON con questi campi: {"cli":"nome azienda","via":"via e numero civico","cap":"CAP e città e provincia","sito":"nome struttura se presente altrimenti stringa vuota"}. Nessun altro testo.' }
+          ]
+        }]
+      })
+    });
+    if (!resp.ok) throw new Error('API error');
+    const data = await resp.json();
+    const text = data.choices?.[0]?.message?.content?.trim();
+    const clean = text.replace(/```json|```/g,'').trim();
+    const parsed = JSON.parse(clean);
+    if (parsed.cli) document.getElementById('n-cli').value = parsed.cli;
+    if (parsed.via) document.getElementById('n-via').value = parsed.via;
+    if (parsed.cap) document.getElementById('n-cap').value = parsed.cap;
+    if (parsed.sito) document.getElementById('n-sito').value = parsed.sito;
+    closeOv('ov-ocr');
+    toast('✓ Dati estratti');
+  } catch(e) {
+    toast('⚠️ Errore estrazione: ' + String(e.message||e).slice(0,40));
+  }
+
+  document.getElementById('ocr-lbl').textContent = 'Estrai dati';
+  document.getElementById('ocr-spin').style.display = 'none';
+  document.getElementById('ocr-btn').disabled = false;
 }
 
-function resetPhoto(mode) {
-  document.getElementById(mode+'-photo-prev').style.display = 'none';
-  document.getElementById(mode+'-photo-ph').style.display = 'block';
-  document.getElementById(mode+'-photo-rm').style.display = 'none';
+function saveProb() {
+  if (!addTag) { toast('⚠️ Scegli il tipo di problema'); return; }
+  const p = buildProb('add'); if (!p) return;
+  cur().probs.push(p); saveDB(); renderProbs(); closeOv('ov-add'); toast('✓ Problema aggiunto');
+}
+
+function openEditProb(i) {
+  editIdx=i;
+  const p = cur().probs[i];
+  document.querySelectorAll('#ov-edit .tag').forEach(t=>{ t.classList.remove('on'); if(t.dataset.cat===p.cat) t.classList.add('on'); });
+  editTag={cat:p.cat,icon:p.icon,lbl:p.lbl};
+  document.querySelectorAll('#ov-edit .dyn').forEach(f=>f.classList.add('hide'));
+  if (p.cat==='diff') {
+    document.getElementById('edit-f-diff').classList.remove('hide');
+    document.getElementById('edit-d-nome').value=p.dNome||'';
+    document.getElementById('edit-d-qdr').value=p.dQdr||'';
+    document.getElementById('edit-d-pos').value=p.dPos||'';
+  } else {
+    document.getElementById('edit-f-gen').classList.remove('hide');
+    document.getElementById('edit-desc').value=p.desc||'';
+  }
+  editPh=p.photo||null;
+  if (p.photo) { document.getElementById('edit-ph-prev').src=p.photo; document.getElementById('edit-ph-prev').style.display='block'; document.getElementById('edit-ph-rm').style.display='block'; }
+  else resetPh('edit');
+  document.getElementById('edit-ph-in-cam').value='';
+  document.getElementById('edit-ph-in-gal').value='';
+  openOv('ov-edit');
+}
+
+function saveEdit() {
+  if (!editTag) { toast('⚠️ Scegli il tipo'); return; }
+  const p = buildProb('edit'); if (!p) return;
+  cur().probs[editIdx]=p; saveDB(); renderProbs(); closeOv('ov-edit'); toast('✓ Aggiornato');
+}
+
+function delProb(i) {
+  if (!confirm('Eliminare?')) return;
+  cur().probs.splice(i,1); saveDB(); renderProbs(); toast('Eliminato');
+}
+
+function buildProb(m) {
+  const tag=m==='add'?addTag:editTag, ph=m==='add'?addPh:editPh;
+  const p={cat:tag.cat,icon:tag.icon,lbl:tag.lbl,photo:ph,aiMode:(m==='add'?addMode==='ai':false)};
+  if (tag.cat==='diff') {
+    const nome=gv(m+'-d-nome'),qdr=gv(m+'-d-qdr'),pos=gv(m+'-d-pos');
+    if (!nome||!qdr) { toast('⚠️ Inserisci nome interruttore e quadro'); return null; }
+    p.dNome=nome;p.dQdr=qdr;p.dPos=pos;
+  } else {
+    p.desc=gv(m+'-desc');
+    if (!p.desc&&tag.cat!=='scatola'&&tag.cat!=='quadro') { toast('⚠️ Inserisci una descrizione'); return null; }
+  }
+  return p;
+}
+
+// ══ TAGS ══
+const CAT_PREFIX = {
+  terra: "Verificare il collegamento all'impianto di messa a terra ",
+  scatola: "Chiudere con apposito coperchio la scatola di derivazione presente ",
+  quadro: "Sistemare il quadro elettrico ",
+  altro: ""
+};
+
+function selTag(el, m) {
+  document.querySelectorAll('#ov-'+m+' .tag').forEach(t=>t.classList.remove('on'));
+  el.classList.add('on');
+  const t={cat:el.dataset.cat,icon:el.dataset.icon,lbl:el.dataset.lbl};
+  if(m==='add') addTag=t; else editTag=t;
+  document.querySelectorAll('#ov-'+m+' .dyn').forEach(f=>f.classList.add('hide'));
+  const isDiff = el.dataset.cat==='diff';
+  document.getElementById(m+'-f-'+(isDiff?'diff':'gen')).classList.remove('hide');
+  // Pre-fill prefix for non-diff categories
+  if (!isDiff) {
+    const prefix = CAT_PREFIX[el.dataset.cat] || '';
+    const ta = document.getElementById(m+'-desc');
+    ta.value = prefix;
+    // Place cursor at end
+    setTimeout(()=>{ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 100);
+  }
+}
+
+// ══ PHOTO ══
+function handlePhoto(m, e) {
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas');
+      const MAX=1200;let w=img.width,h=img.height;
+      if(w>MAX){h=h*MAX/w;w=MAX;}if(h>MAX){w=w*MAX/h;h=MAX;}
+      c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      const d=c.toDataURL('image/jpeg',.75);
+      if(m==='add') addPh=d; else editPh=d;
+      document.getElementById(m+'-ph-prev').src=d;
+      document.getElementById(m+'-ph-prev').style.display='block';
+      document.getElementById(m+'-ph-rm').style.display='block';
+    };
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+function removePhoto(m) {
+  if(m==='add') addPh=null; else editPh=null;
+  resetPh(m);
+  const cam=document.getElementById(m+'-ph-in-cam');
+  const gal=document.getElementById(m+'-ph-in-gal');
+  if(cam)cam.value=''; if(gal)gal.value='';
+}
+function resetPh(m) {
+  document.getElementById(m+'-ph-prev').style.display='none';
+  document.getElementById(m+'-ph-rm').style.display='none';
 }
 
 // ══ PDF POPUP ══
 function openPdfPopup() {
-  if (!curSess().probs.length) { toast('⚠️ Aggiungi almeno un problema'); return; }
+  if (!cur().probs.length) { toast('⚠️ Aggiungi almeno un problema'); return; }
   openOv('ov-pdf');
 }
 
-// ══ PDF GENERATION ══
-async function doGeneratePDF(withAI) {
-  closeOv('ov-pdf');
-  const s = curSess();
-
-  // If AI requested, show spinner and try
-  let texts = s.probs.map(p => buildText(p));
-  if (withAI) {
-    document.getElementById('ai-spin').style.display = 'block';
-    openOv('ov-pdf');
-    try {
-      texts = await aiRefine(s, texts);
-    } catch(e) {
-      toast('⚠️ AI non disponibile, PDF generato senza');
-    }
-    document.getElementById('ai-spin').style.display = 'none';
-    closeOv('ov-pdf');
+async function generaVerbale() {
+  if (!cur().probs.length) { toast('⚠️ Aggiungi almeno un problema'); return; }
+  if (cur().done) { toast('Riapri la verifica per generare il PDF'); return; }
+  const m = cur().mode || 'std';
+  if (m === 'ai') {
+    await doGenerate(true);
+  } else {
+    await doGenerate(false);
   }
-
-  buildPDF(s, texts);
 }
 
-function buildPDF(s, texts) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-  const ml = 25, mr = 185, W = mr - ml;
-  let y = 28;
+async function doGenerate(withAI) {
+  closeOv('ov-pdf');
+  const s = cur();
+  let texts = s.probs.map(p => buildText(p));
 
-  const sf = (style, size) => { doc.setFont('helvetica', style); doc.setFontSize(size); doc.setTextColor(0,0,0); };
-  const chk = (n=20) => { if (y + n > 275) { doc.addPage(); y = 25; } };
+  if (withAI) {
+    const key = getKey();
+    if (!key) { toast('⚠️ Configura prima la API Key (🔑)'); return; }
 
-  // Destinatario
-  sf('normal', 11);
-  doc.text('Spett.', ml, y); y += 6;
-  doc.text(s.cli, ml, y); y += 6;
-  doc.text(s.via, ml, y); y += 6;
-  doc.text(s.cap, ml, y); y += 2;
+    // Show loading overlay
+    const loadDiv = document.createElement('div');
+    loadDiv.id = 'ai-loading';
+    loadDiv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;backdrop-filter:blur(4px)';
+    loadDiv.innerHTML = '<div style="width:40px;height:40px;border-radius:50%;border:3px solid rgba(245,166,35,.2);border-top-color:#f5a623;animation:rot .7s linear infinite"></div><div style="color:#e6e8ef;font-size:15px;font-weight:500">Elaborazione AI in corso...</div>';
+    document.body.appendChild(loadDiv);
 
-  // Data destra
-  sf('normal', 11);
-  const ds = `Data: ${fmtD(s.data)}`;
-  doc.text(ds, mr - doc.getTextWidth(ds), y); y += 10;
-
-  // Oggetto
-  const sitoPart = s.sito ? `"${s.sito}" ` : '';
-  const sedeStr = s.opVia + ', ' + s.opCap;
-  const ogg = `Oggetto: Situazioni da sistemare rilevate presso ${sitoPart}sita in ${sedeStr}.`;
-  sf('bold', 11);
-  const ogL = doc.splitTextToSize(ogg, W);
-  doc.text(ogL, ml, y); y += ogL.length * 6 + 8;
-
-  // Intro
-  sf('normal', 11);
-  doc.text('Siamo a comunicare le situazioni da sistemare rilevate:', ml, y); y += 8;
-
-  // Problemi
-  for (let i = 0; i < s.probs.length; i++) {
-    const p = s.probs[i];
-    chk(30);
-    sf('normal', 11);
-    const bL = doc.splitTextToSize(`- ${texts[i]}`, W);
-    doc.text(bL, ml, y); y += bL.length * 6;
-    if (p.photo) {
-      chk(70); y += 2;
-      try {
-        const ip = doc.getImageProperties(p.photo);
-        const iw = Math.min(100, W * 0.6), ih = iw / (ip.width / ip.height);
-        doc.addImage(p.photo, 'JPEG', ml, y, iw, ih);
-        sf('normal', 9); doc.setTextColor(120,120,120);
-        doc.text(`(foto ${i+1})`, ml, y + ih + 4); doc.setTextColor(0,0,0);
-        y += ih + 8;
-      } catch(e) {}
+    try {
+      texts = await aiRefine(s, texts, key);
+    } catch(e) {
+      document.body.removeChild(loadDiv);
+      const msg = String(e.message||e);
+      alert('Errore AI:\n' + msg);
+      return;
     }
-    y += 2;
+    document.body.removeChild(loadDiv);
   }
 
-  // Chiusura
-  chk(25); y += 6;
-  sf('normal', 11);
-  doc.text("A disposizione per eventuali chiarimenti, cogliamo l'occasione per porgere", ml, y);
-  y += 14;
-  sf('bold', 11);
-  doc.text('Distinti Saluti', ml, y);
+  await buildPDF(s, texts);
+}
 
-  doc.save(`Rilievi_${s.cli.replace(/[^a-zA-Z0-9]/g,'_')}_${s.data}.pdf`);
+// ══ AI ══
+async function aiRefine(s, texts, key) {
+  // Build enriched items with full context
+  const items = s.probs.map(p => {
+    if (p.cat === 'diff') return `Differenziale: interruttore "${p.dNome}", quadro "${p.dQdr}"${p.dPos ? ', posizione: ' + p.dPos : ''}`;
+    return `${p.lbl}: ${p.desc || ''}`.trim();
+  });
+
+  const prompt = `Sei un tecnico elettricista esperto che redige verbali di verifica impianti elettrici per conto di una società di verifica.
+Riformula ogni voce in italiano tecnico professionale. Le frasi devono essere complete, grammaticalmente corrette e fluenti — non uno stile telegraficoo burocratico, ma una descrizione tecnica chiara e precisa.
+Esempi di stile corretto:
+- "Verificare il collegamento all'impianto di messa a terra della presa elettrica posizionata nel corridoio degli uffici."
+- "Verificare il corretto funzionamento dell'interruttore differenziale denominato \"Antincendio\" presente nel quadro \"QE Generale zona piscine\", sito nell'apposita botola in zona 11."
+- "Provvedere alla chiusura con apposito coperchio della scatola di derivazione presente nel retro del bancone bar."
+- "Ripristinare e sistemare il quadro elettrico delle case mobili maxicaravan prestige, posizionato in prossimità del caravan 45."
+Regole:
+- Usa solo le informazioni presenti, non inventare dettagli
+- Se manca il luogo specifico, costruisci comunque una frase fluente senza indicarlo
+- Mantieni i nomi propri di interruttori e quadri tra virgolette
+- Ogni frase deve terminare con il punto
+Rispondi SOLO con un array JSON di stringhe, stesso numero e ordine. Nessun altro testo.
+Voci: ${JSON.stringify(items)}`;
+
+  const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + key
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      max_tokens: 1000,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if (!resp.ok) { const e=await resp.json(); throw new Error(e.error?.message||'Errore API'); }
+  const data = await resp.json();
+  const text = data.choices?.[0]?.message?.content?.trim();
+  if (!text) throw new Error('Risposta vuota');
+  const clean = text.replace(/```json|```/g,'').trim();
+  return JSON.parse(clean);
+}
+
+// ══ PDF ══
+// Font loading for PDF
+let pdfFontLoaded = false;
+
+async function loadPDFFont(doc) {
+  if (pdfFontLoaded) return;
+  try {
+    // Fetch Inter Regular
+    const respR = await fetch('https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiJ-Ek-_EeA.woff2');
+    // woff2 not directly usable by jsPDF, use TTF instead
+    const respTTF = await fetch('https://raw.githubusercontent.com/rsms/inter/master/docs/font-files/Inter-Regular.ttf');
+    if (!respTTF.ok) throw new Error('font fetch failed');
+    const buf = await respTTF.arrayBuffer();
+    const b64 = btoa(String.fromCharCode(...new Uint8Array(buf)));
+    doc.addFileToVFS('Inter-Regular.ttf', b64);
+    doc.addFont('Inter-Regular.ttf', 'Inter', 'normal');
+    
+    const respB = await fetch('https://raw.githubusercontent.com/rsms/inter/master/docs/font-files/Inter-Bold.ttf');
+    if (respB.ok) {
+      const bufB = await respB.arrayBuffer();
+      const b64B = btoa(String.fromCharCode(...new Uint8Array(bufB)));
+      doc.addFileToVFS('Inter-Bold.ttf', b64B);
+      doc.addFont('Inter-Bold.ttf', 'Inter', 'bold');
+    }
+    pdfFontLoaded = true;
+    return true;
+  } catch(e) {
+    console.warn('Font load failed, using helvetica:', e);
+    return false;
+  }
+}
+
+async function buildPDF(s, texts) {
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:'p',unit:'mm',format:'a4'});
+  const ml=15, mr=197, W=mr-ml;
+  let y=20;
+
+  // Try to load Inter font, fallback to helvetica
+  const useInter = await loadPDFFont(doc);
+  const fontName = useInter ? 'Inter' : 'helvetica';
+  const sf=(style,size)=>{doc.setFont(fontName,style);doc.setFontSize(size);doc.setTextColor(0,0,0);};
+  const chk=(n=20)=>{if(y+n>282){doc.addPage();y=15;}};
+
+  // Helper: justified text block with hanging indent for wrapped lines
+  const writeJustified=(text, x, maxW, indent=4)=>{
+    sf('normal',10.5);
+    const lines=doc.splitTextToSize(text, maxW);
+    lines.forEach((line, li)=>{
+      const isLast=(li===lines.length-1);
+      if(isLast || lines.length===1){
+        // Last line: left-aligned (no justify)
+        doc.text(line, li===0?x:x+indent, y);
+      } else {
+        // Justify by spacing words
+        const words=line.split(' ').filter(w=>w.length>0);
+        if(words.length<=1){
+          doc.text(line, li===0?x:x+indent, y);
+        } else {
+          const lineX = li===0?x:x+indent;
+          const lineW = li===0?maxW:maxW-indent;
+          sf('normal',10.5);
+          const baseW=doc.getTextWidth(words.join(' '));
+          const totalSpace=lineW-baseW+(words.length-1)*doc.getTextWidth(' ');
+          const spaceW=totalSpace/(words.length-1);
+          let curX=lineX;
+          words.forEach((w,wi)=>{
+            doc.text(w,curX,y);
+            if(wi<words.length-1) curX+=doc.getTextWidth(w)+spaceW;
+          });
+        }
+      }
+      y+=5.5;
+    });
+  };
+
+  // ── Committente
+  sf('normal',10.5);
+  const commLabel='Committente: ';
+  sf('bold',10.5);
+  const commLabelW=doc.getTextWidth(commLabel);
+  sf('normal',10.5);
+  // Write "Committente: " bold, then name normal
+  doc.setFont('helvetica','normal');doc.text(commLabel,ml,y);
+  doc.setFont('helvetica','bold');
+  const commLines=doc.splitTextToSize(s.cli, W-commLabelW);
+  doc.text(commLines[0],ml+commLabelW,y);y+=5.5;
+  for(let i=1;i<commLines.length;i++){doc.text(commLines[i],ml+commLabelW,y);y+=5.5;}
+
+  // ── Impianto
+  // Rimuovi "Impianto" dal nome struttura se presente (case insensitive)
+  const sitoClean = s.sito ? s.sito.replace(/^impianto\s*/i,'').trim() : '';
+  const impiantoAddr = (sitoClean?sitoClean+' ':'') + (s.opVia&&s.opVia!==s.via ? s.opVia+' '+s.opCap : s.via+' '+s.cap);
+  doc.setFont('helvetica','normal');
+  const impLabel='Impianto: ';
+  const impLabelW=doc.getTextWidth(impLabel);
+  doc.text(impLabel,ml,y);
+  doc.setFont('helvetica','bold');
+  const impLines=doc.splitTextToSize(impiantoAddr, W-impLabelW);
+  doc.text(impLines[0],ml+impLabelW,y);y+=5.5;
+  for(let i=1;i<impLines.length;i++){doc.text(impLines[i],ml+impLabelW,y);y+=5.5;}
+
+  // ── Data
+  doc.setFont('helvetica','normal');doc.text('Data: ',ml,y);
+  const dataLabelW=doc.getTextWidth('Data: ');
+  doc.setFont('helvetica','bold');doc.text(fmtD(s.data),ml+dataLabelW,y);
+  y+=8;
+
+  // ── Anomalie rilevate
+  sf('normal',10.5);
+  doc.text('Anomalie rilevate:',ml,y);
+  y+=6;
+
+  // ── Lista puntata giustificata con rientro
+  const photoProbs=[];
+  for(let i=0;i<s.probs.length;i++){
+    sf('normal',10.5);
+    const hasPhoto=!!s.probs[i].photo;
+    const fotoRef=hasPhoto?` (foto ${i+1});`:';';
+    const fullText=`${texts[i]}${fotoRef}`;
+    const bulletX=ml;
+    const textX=ml+5; // rientro testo dopo trattino
+    const textW=W-5;
+
+    // Stima altezza
+    const lines=doc.splitTextToSize(fullText,textW);
+    const needed=lines.length*5.5+2;
+    chk(needed+5);
+
+    // Scrivi trattino
+    sf('normal',10.5);
+    doc.text('-',bulletX,y);
+
+    // Testo giustificato con rientro
+    lines.forEach((line,li)=>{
+      const isLast=(li===lines.length-1);
+      if(isLast||lines.length===1){
+        doc.setFont('helvetica','normal');
+        doc.text(line,textX,y);
+      } else {
+        const words=line.split(' ').filter(w=>w.length>0);
+        if(words.length<=1){
+          doc.text(line,textX,y);
+        } else {
+          sf('normal',10.5);
+          const baseW=doc.getTextWidth(words.join(' '));
+          const totalSp=(textW)-(baseW-(words.length-1)*doc.getTextWidth(' '));
+          const spW=totalSp/(words.length-1);
+          let cx=textX;
+          words.forEach((w,wi)=>{
+            doc.text(w,cx,y);
+            if(wi<words.length-1)cx+=doc.getTextWidth(w)+spW;
+          });
+        }
+      }
+      y+=5.5;
+    });
+    y+=1;
+    if(hasPhoto) photoProbs.push({idx:i+1,photo:s.probs[i].photo});
+  }
+
+  // ── Griglia foto (max 3 per riga)
+  if(photoProbs.length>0){
+    chk(60);y+=4;
+    const cols=3,gap=4;
+    const iw=Math.floor((W-(cols-1)*gap)/cols);
+    for(let r=0;r<Math.ceil(photoProbs.length/cols);r++){
+      const row=photoProbs.slice(r*cols,r*cols+cols);
+      let maxH=0;
+      row.forEach(item=>{
+        try{const ip=doc.getImageProperties(item.photo);const ih=iw/(ip.width/ip.height);if(ih>maxH)maxH=ih;}catch(e){}
+      });
+      chk(maxH+12);
+      row.forEach((item,ci)=>{
+        const x=ml+ci*(iw+gap);
+        try{
+          const ip=doc.getImageProperties(item.photo);
+          const ih=iw/(ip.width/ip.height);
+          doc.addImage(item.photo,'JPEG',x,y,iw,ih);
+          sf('normal',8);doc.setTextColor(100,100,100);
+          const capText=`(foto ${item.idx})`;
+          doc.text(capText,x+(iw-doc.getTextWidth(capText))/2,y+ih+3);
+          doc.setTextColor(0,0,0);
+        }catch(e){}
+      });
+      y+=maxH+8;
+    }
+  }
+
+  const fname=s.commessa?`Rilievi-${s.commessa}.pdf`:`Rilievi_${s.cli.replace(/[^a-zA-Z0-9]/g,'_')}_${s.data}.pdf`;
+  doc.save(fname);
   toast('✓ PDF scaricato');
 }
 
-// ══ AI REFINE (Cloudflare proxy — configurare URL) ══
-const AI_PROXY_URL = ''; // inserire URL Cloudflare Worker dopo configurazione
-
-async function aiRefine(s, texts) {
-  if (!AI_PROXY_URL) throw new Error('no proxy');
-  const prompt = `Sei un tecnico elettricista. Riformula le seguenti voci in italiano tecnico formale per un verbale ufficiale. Rispondi SOLO con un array JSON di stringhe, stesso numero e ordine delle voci originali.
-Voci: ${JSON.stringify(texts)}`;
-  const resp = await fetch(AI_PROXY_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt })
-  });
-  if (!resp.ok) throw new Error('proxy error');
-  const d = await resp.json();
-  return JSON.parse(d.result);
-}
-
-// ══ OVERLAY ══
-function openOv(id) { document.getElementById(id).classList.add('open'); }
-function closeOv(id) { document.getElementById(id).classList.remove('open'); }
-document.querySelectorAll('.overlay').forEach(ov => {
-  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
-});
 
 // ══ UTILS ══
-function fmtD(v) {
-  if (!v) return '';
-  const [yr, mo] = v.split('-');
-  return ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'][parseInt(mo)-1] + ' ' + yr;
+function fmtD(v){
+  if(!v)return'';
+  const[yr,mo]=v.split('-');
+  return['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'][parseInt(mo)-1]+' '+yr;
 }
-function gv(id) { return (document.getElementById(id)?.value || '').trim(); }
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
+function gv(id){return(document.getElementById(id)?.value||'').trim();}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
 }
 
 // ══ INIT ══
-document.getElementById('n-data').value = new Date().toISOString().slice(0, 7);
-const ico = savedTheme === 'dark' ? '🌙' : '☀️';
-document.getElementById('theme-btn').textContent = ico;
-document.getElementById('theme-btn2').textContent = ico;
+updateThemeIcons();
 renderHome();
+// Sync from cloud on load if configured
+if (getJBKey() && getJBBin()) {
+  syncFromCloud().then(() => { renderHome(); }).catch(() => {});
+}
+
+// Intercept back swipe/button to navigate between screens instead of closing
+history.pushState({page:'home'}, '');
+window.addEventListener('popstate', function(e) {
+  const ver = document.getElementById('s-ver');
+  const isOnSession = ver.classList.contains('active');
+  if (isOnSession) {
+    goHome();
+    history.pushState({page:'home'}, '');
+  }
+});
+
+// Push a new state whenever we open a session
+const _origOpenSess = openSess;
+openSess = function(id) {
+  _origOpenSess(id);
+  sessionStorage.setItem('rilievi_cur', id);
+  history.pushState({page:'session', id}, '');
+};
+
+// Restore last open session on reload
+const _lastSess = sessionStorage.getItem('rilievi_cur');
+if (_lastSess && DB.sessions.find(s=>s.id===_lastSess)) {
+  openSess(_lastSess);
+  history.pushState({page:'session', id:_lastSess}, '');
+}
 </script>
 </body>
 </html>
