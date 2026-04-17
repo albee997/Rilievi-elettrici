@@ -300,9 +300,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div class="fg"><label id="add-desc-lbl">Descrizione</label><textarea id="add-desc" placeholder="Es: presa corridoio bagni" rows="3"></textarea></div>
     </div>
     <div class="dyn hide" id="add-f-diff">
-      <div class="fg"><label>Nome interruttore</label><input type="text" id="add-d-nome" placeholder='Es. "Antincendio"'></div>
-      <div class="fg"><label>Nome quadro</label><input type="text" id="add-d-qdr" placeholder='Es. "QE Generale zona piscine"'></div>
-      <div class="fg"><label>Posizione quadro</label><input type="text" id="add-d-pos" placeholder="Es. botola zona 11"></div>
+      <div class="fg"><label>Descrizione</label><textarea id="add-d-desc" rows="3"></textarea></div>
     </div>
     <div class="fg">
       <label>Foto (opzionale)</label>
@@ -345,9 +343,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       <div class="fg"><label>Descrizione</label><textarea id="edit-desc" rows="3"></textarea></div>
     </div>
     <div class="dyn hide" id="edit-f-diff">
-      <div class="fg"><label>Nome interruttore</label><input type="text" id="edit-d-nome"></div>
-      <div class="fg"><label>Nome quadro</label><input type="text" id="edit-d-qdr"></div>
-      <div class="fg"><label>Posizione quadro</label><input type="text" id="edit-d-pos"></div>
+      <div class="fg"><label>Descrizione</label><textarea id="edit-d-desc" rows="3"></textarea></div>
     </div>
     <div class="fg">
       <label>Foto</label>
@@ -897,10 +893,6 @@ function renderProbs() {
 
 // ══ BUILD TEXT ══
 function buildText(p) {
-  // In std mode: use exactly what user wrote (desc contains full sentence including prefix)
-  // In ai mode or diff: use structured build
-  if (p.cat==='diff') return `Verificare il funzionamento dell'interruttore differenziale "${p.dNome}" presente nel quadro "${p.dQdr}"${p.dPos?' sito '+p.dPos:''}.`;
-  // For all other cats in std mode, desc IS the full sentence (user edited the pre-filled text)
   return p.desc||'';
 }
 
@@ -911,7 +903,7 @@ function openAddProb() {
   addTag=null; addPh=null;
   document.querySelectorAll('#ov-add .tag').forEach(t=>t.classList.remove('on'));
   document.querySelectorAll('#ov-add .dyn').forEach(f=>f.classList.add('hide'));
-  ['add-desc','add-d-nome','add-d-qdr','add-d-pos'].forEach(id=>document.getElementById(id).value='');
+  ['add-desc','add-d-desc','add-d-nome','add-d-qdr','add-d-pos'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   resetPh('add'); initModeToggle(); openOv('ov-add');
 }
 
@@ -932,7 +924,7 @@ function setMode(m) {
     ta.placeholder = 'Es: presa bagni, diff guasto cucina...';
     // Clear prefill if switching to AI
     const prefixes = Object.values(CAT_PREFIX);
-    if (prefixes.some(p => p && ta.value === p)) ta.value = '';
+    if (prefixes.some(p => p && ta && ta.value === p)) ta.value = '';
   }
 }
 
@@ -1032,9 +1024,7 @@ function openEditProb(i) {
   document.querySelectorAll('#ov-edit .dyn').forEach(f=>f.classList.add('hide'));
   if (p.cat==='diff') {
     document.getElementById('edit-f-diff').classList.remove('hide');
-    document.getElementById('edit-d-nome').value=p.dNome||'';
-    document.getElementById('edit-d-qdr').value=p.dQdr||'';
-    document.getElementById('edit-d-pos').value=p.dPos||'';
+    document.getElementById('edit-d-desc').value=p.desc||'';
   } else {
     document.getElementById('edit-f-gen').classList.remove('hide');
     document.getElementById('edit-desc').value=p.desc||'';
@@ -1062,9 +1052,9 @@ function buildProb(m) {
   const tag=m==='add'?addTag:editTag, ph=m==='add'?addPh:editPh;
   const p={cat:tag.cat,icon:tag.icon,lbl:tag.lbl,photo:ph,aiMode:(m==='add'?addMode==='ai':false)};
   if (tag.cat==='diff') {
-    const nome=gv(m+'-d-nome'),qdr=gv(m+'-d-qdr'),pos=gv(m+'-d-pos');
-    if (!nome||!qdr) { toast('⚠️ Inserisci nome interruttore e quadro'); return null; }
-    p.dNome=nome;p.dQdr=qdr;p.dPos=pos;
+    const desc=gv(m+'-d-desc');
+    if (!desc) { toast('⚠️ Inserisci la descrizione'); return null; }
+    p.desc=desc;
   } else {
     p.desc=gv(m+'-desc');
     if (!p.desc&&tag.cat!=='scatola'&&tag.cat!=='quadro') { toast('⚠️ Inserisci una descrizione'); return null; }
@@ -1075,6 +1065,7 @@ function buildProb(m) {
 // ══ TAGS ══
 const CAT_PREFIX = {
   terra: "Verificare il collegamento all'impianto di messa a terra ",
+  diff: "Verificare il funzionamento dell'interruttore differenziale ",
   scatola: "Chiudere con apposito coperchio la scatola di derivazione presente ",
   quadro: "Sistemare il quadro elettrico ",
   altro: ""
@@ -1086,14 +1077,14 @@ function selTag(el, m) {
   const t={cat:el.dataset.cat,icon:el.dataset.icon,lbl:el.dataset.lbl};
   if(m==='add') addTag=t; else editTag=t;
   document.querySelectorAll('#ov-'+m+' .dyn').forEach(f=>f.classList.add('hide'));
-  const isDiff = el.dataset.cat==='diff';
-  document.getElementById(m+'-f-'+(isDiff?'diff':'gen')).classList.remove('hide');
-  // Pre-fill prefix for non-diff categories
-  if (!isDiff) {
-    const prefix = CAT_PREFIX[el.dataset.cat] || '';
-    const ta = document.getElementById(m+'-desc');
+  // diff now uses its own textarea (pre-filled), show f-diff
+  document.getElementById(m+'-f-'+(el.dataset.cat==='diff'?'diff':'gen')).classList.remove('hide');
+  // Pre-fill prefix for all categories
+  const prefix = CAT_PREFIX[el.dataset.cat] || '';
+  const taId = el.dataset.cat==='diff' ? m+'-d-desc' : m+'-desc';
+  const ta = document.getElementById(taId);
+  if(ta) {
     ta.value = prefix;
-    // Place cursor at end
     setTimeout(()=>{ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 100);
   }
 }
@@ -1312,11 +1303,9 @@ async function buildPDF(s, texts) {
   for(let i=1;i<commLines.length;i++){doc.text(commLines[i],ml+commLabelW,y);y+=5.5;}
 
   // ── Impianto
-  // Rimuovi "Impianto" dal nome struttura se presente (case insensitive)
-  const sitoClean = s.sito ? s.sito.replace(/^impianto\s*/i,'').trim() : '';
-  const impiantoAddr = (sitoClean?sitoClean+' ':'') + (s.opVia&&s.opVia!==s.via ? s.opVia+' '+s.opCap : s.via+' '+s.cap);
+  const impiantoAddr = (s.sito?s.sito+' ':'') + (s.opVia&&s.opVia!==s.via ? s.opVia+' '+s.opCap : s.via+' '+s.cap);
   doc.setFont('helvetica','normal');
-  const impLabel='Impianto: ';
+  const impLabel='Ubicazione: ';
   const impLabelW=doc.getTextWidth(impLabel);
   doc.text(impLabel,ml,y);
   doc.setFont('helvetica','bold');
